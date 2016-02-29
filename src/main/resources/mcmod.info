@@ -1,0 +1,16 @@
+[
+{
+  "modid": "hw_monsters",
+  "name": "Hostile Worlds Monsters",
+  "description": "",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Corosus"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
