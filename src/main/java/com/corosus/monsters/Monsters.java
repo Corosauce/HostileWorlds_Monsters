@@ -9,7 +9,7 @@ import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 
-@Mod(modid = "hw_monsters", name="HW_Monsters", version="v0.1")
+@Mod(modid = "hw_monsters", name="HW_Monsters", version="v0.1", acceptableRemoteVersions="*")
 public class Monsters {
 	
 	@Mod.Instance( value = "hw_monsters" )
