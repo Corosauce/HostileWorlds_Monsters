@@ -107,9 +107,8 @@ public class TaskAntiAir extends EntityAIBase implements ITaskInitializer
 	    			
 	    			
 	    			
-	    			if (leapDelayCur > 0) {
-	    	    		leapDelayCur--;
-	    	    	} else if (inAirLongEnough) {
+	    			
+	    	    	if (leapDelayCur == 0 && inAirLongEnough) {
 		    			
 		    			double vecX = targetLastTracked.posX - entity.posX;
 		    			double vecY = targetLastTracked.posY - entity.posY;
@@ -156,6 +155,9 @@ public class TaskAntiAir extends EntityAIBase implements ITaskInitializer
     	}
     	
     	if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
+    		if (leapDelayCur > 0) {
+	    		leapDelayCur--;
+    		}
     		grabLock = false;
 	    	if (entity.riddenByEntity instanceof EntityPlayer) {
 				entity.riddenByEntity.mountEntity(null);
