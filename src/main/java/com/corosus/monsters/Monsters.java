@@ -1,6 +1,10 @@
 package com.corosus.monsters;
 
+import modconfig.ConfigMod;
 import net.minecraftforge.common.MinecraftForge;
+
+import com.corosus.monsters.config.ConfigHWMonsters;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -19,7 +23,7 @@ public class Monsters {
 	@Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-		//ConfigMod.addConfigFile(event, "invasionConfig", new ConfigInvasion());
+		ConfigMod.addConfigFile(event, "HWMonstersMisc", new ConfigHWMonsters());
     }
     
 	@Mod.EventHandler

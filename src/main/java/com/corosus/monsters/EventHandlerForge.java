@@ -17,6 +17,7 @@ import CoroUtil.util.BlockCoord;
 import CoroUtil.world.player.DynamicDifficulty;
 
 import com.corosus.monsters.ai.tasks.TaskAntiAir;
+import com.corosus.monsters.config.ConfigHWMonsters;
 
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -67,7 +68,9 @@ public class EventHandlerForge {
 				EntityCreature ent = (EntityCreature) event.entity;
 				
 				if (ent instanceof EntityZombie) {
-					BehaviorModifier.addTaskIfMissing(ent, TaskAntiAir.class, tasksToInject, taskPriorities[0]);
+					if (ConfigHWMonsters.antiAir) {
+						BehaviorModifier.addTaskIfMissing(ent, TaskAntiAir.class, tasksToInject, taskPriorities[0]);
+					}
 				}
 				
 				if (!ent.getEntityData().getBoolean(BehaviorModifier.dataEntityEnhanced)) {
@@ -91,7 +94,7 @@ public class EventHandlerForge {
 						float maxHealthClean = Math.round(ent.getMaxHealth() * 1000F) / 1000F;
 						//System.out.println("health max before: " + maxHealthClean);
 						
-						double healthBoostMultiply = (double)(/*1F + */difficulty);
+						double healthBoostMultiply = (double)(/*1F + */difficulty * ConfigHWMonsters.scaleHealth);
 						ent.getEntityAttribute(SharedMonsterAttributes.maxHealth).applyModifier(new AttributeModifier("health multiplier boost", healthBoostMultiply, 2));
 						
 						//100% chance to nullify knockback

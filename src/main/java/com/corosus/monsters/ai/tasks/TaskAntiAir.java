@@ -2,6 +2,8 @@ package com.corosus.monsters.ai.tasks;
 
 import java.util.List;
 
+import com.corosus.monsters.config.ConfigHWMonsters;
+
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIBase;
@@ -19,6 +21,7 @@ public class TaskAntiAir extends EntityAIBase implements ITaskInitializer
     
     private boolean autoAttackTest = true;
     private boolean tryingToGrab = false;
+    private boolean grabLock = false;
     
     private String detectOnGroundTime = "HW_M_detectOnGroundTime";
 
@@ -57,7 +60,7 @@ public class TaskAntiAir extends EntityAIBase implements ITaskInitializer
     {
     	if (entity.getAttackTarget() != null || autoAttackTest) {
 	    	targetLastTracked = getFlyingPlayerNear();
-			return targetLastTracked != null;
+			return targetLastTracked != null || tryingToGrab || grabLock;
     	} else {
     		return false;
     	}
@@ -76,6 +79,9 @@ public class TaskAntiAir extends EntityAIBase implements ITaskInitializer
      */
     public void resetTask()
     {
+    	if (entity.riddenByEntity instanceof EntityPlayer) {
+			entity.riddenByEntity.mountEntity(null);
+		}
     	//System.out.println("reset!");
     }
 
@@ -85,6 +91,8 @@ public class TaskAntiAir extends EntityAIBase implements ITaskInitializer
     public void updateTask()
     {
     	
+    	entity.fallDistance = 0;
+    	
     	if (entity.getAttackTarget() != null || autoAttackTest) {
 	    	targetLastTracked = getFlyingPlayerNear();
 	    	
@@ -93,13 +101,11 @@ public class TaskAntiAir extends EntityAIBase implements ITaskInitializer
 	    		double dist = entity.getDistanceToEntity(targetLastTracked);
 	    		
 	    		long time = targetLastTracked.getEntityData().getLong(detectOnGroundTime);
-	    		boolean inAirLongEnough = time + 20L*3L < entity.worldObj.getTotalWorldTime();
+	    		boolean inAirLongEnough = time + (long)ConfigHWMonsters.antiAirLeapRate < entity.worldObj.getTotalWorldTime();
 	    		
 	    		if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
 	    			
-	    			if (entity.riddenByEntity != null) {
-	    				entity.riddenByEntity.mountEntity(null);
-	    			}
+	    			
 	    			
 	    			if (leapDelayCur > 0) {
 	    	    		leapDelayCur--;
@@ -114,11 +120,12 @@ public class TaskAntiAir extends EntityAIBase implements ITaskInitializer
 		    				vecY /= dist;
 		    				vecZ /= dist;
 		    				
-		    				double speed = 2D;
+		    				double speed = ConfigHWMonsters.antiAirLeapSpeed * dist;
+		    				double xzAmp = 1.3D;
 		    				
-		    				entity.motionX = vecX * speed;
-		    				entity.motionY = vecY * speed;
-		    				entity.motionZ = vecZ * speed;
+		    				entity.motionX = vecX * speed * xzAmp;
+		    				entity.motionY = (vecY * speed) + 0.1D;
+		    				entity.motionZ = vecZ * speed * xzAmp;
 		    				
 		    				//entity.onGround = false;
 		    				
@@ -129,28 +136,36 @@ public class TaskAntiAir extends EntityAIBase implements ITaskInitializer
 	    	    	}
 	    		} else {
 	    			
-	    			if (tryingToGrab) {
-		    			//entity.fallDistance = 0;
+	    			//if (tryingToGrab) {
 		    			
-		    			if (dist < 2) {
+		    			
+		    			if (dist < 2 || grabLock) {
 		    				if (targetLastTracked.ridingEntity == null) { 
 			    				targetLastTracked.mountEntity(entity);
+			    				grabLock = true;
 			    				if (autoAttackTest && targetLastTracked.capabilities.isFlying) {
 			    					targetLastTracked.capabilities.isFlying = false;
 			    				}
 		    				}
 		    				tryingToGrab = false;
 		    			}
-	    			}
+	    			//}
 	    			
 	    		}
 	    	}
+    	}
+    	
+    	if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
+    		grabLock = false;
+	    	if (entity.riddenByEntity instanceof EntityPlayer) {
+				entity.riddenByEntity.mountEntity(null);
+			}
     	}
     }
     
     public EntityPlayer getFlyingPlayerNear() {
     	
-    	int findRange = 15;
+    	int findRange = ConfigHWMonsters.antiAirTryDist;
     	AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(entity.posX, entity.posY, entity.posZ, entity.posX, entity.posY, entity.posZ);
 		aabb = aabb.expand(findRange, findRange, findRange);
 		List list = entity.worldObj.getEntitiesWithinAABB(EntityPlayer.class, aabb);
