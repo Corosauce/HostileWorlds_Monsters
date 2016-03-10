@@ -11,7 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import CoroPets.ai.ITaskInitializer;
 
-public class TaskAntiAir extends EntityAIBase implements ITaskInitializer
+public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitializer
 {
     private EntityCreature entity = null;
     private EntityPlayer targetLastTracked = null;
@@ -25,7 +25,7 @@ public class TaskAntiAir extends EntityAIBase implements ITaskInitializer
     
     private String detectOnGroundTime = "HW_M_detectOnGroundTime";
 
-    public TaskAntiAir()
+    public EntityAITaskAntiAir()
     {
         //this.setMutexBits(3);
     }
@@ -40,6 +40,8 @@ public class TaskAntiAir extends EntityAIBase implements ITaskInitializer
      */
     public boolean shouldExecute()
     {
+    	
+    	if (!ConfigHWMonsters.antiAir) return false;
     	
     	if (entity.getAttackTarget() != null || autoAttackTest) {
     		targetLastTracked = getFlyingPlayerNear();
@@ -58,6 +60,9 @@ public class TaskAntiAir extends EntityAIBase implements ITaskInitializer
      */
     public boolean continueExecuting()
     {
+    	
+    	if (!ConfigHWMonsters.antiAir) return false;
+    	
     	if (entity.getAttackTarget() != null || autoAttackTest) {
 	    	targetLastTracked = getFlyingPlayerNear();
 			return targetLastTracked != null || tryingToGrab || grabLock;

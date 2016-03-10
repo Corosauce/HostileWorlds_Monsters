@@ -81,17 +81,39 @@ public class BehaviorModifier {
 		}
 		
 		if (!foundTask) {
-			System.out.println("HW-M: Detected entity was recreated and missing tasks, readding tasks and changes");
+			//System.out.println("HW-M: Detected entity was recreated and missing tasks, readding tasks and changes");
 			for (Class clazz : taskToInject) {
 				addTask(ent, clazz, priorityOfTask);
 			}
 			performExtraChanges(ent);
 		} else {
 			//temp output to make sure detection works
-			System.out.println("already has task!");
+			//System.out.println("already has task!");
 		}
 		
 		return !foundTask;
+		
+	}
+	
+	public static boolean replaceTaskIfMissing(EntityCreature ent, Class taskToReplace, Class[] tasksToReplaceWith, int[] priorityOfTask) {
+		EntityAITaskEntry foundTask = null;
+		for (Object entry2 : ent.tasks.taskEntries) {
+			EntityAITaskEntry entry = (EntityAITaskEntry) entry2;
+			if (taskToReplace.isAssignableFrom(entry.action.getClass())) {
+				foundTask = entry;
+				break;
+			}
+		}
+		
+		if (foundTask != null) {
+			ent.tasks.taskEntries.remove(foundTask);
+			
+			for (int i = 0; i < tasksToReplaceWith.length; i++) {
+				addTask(ent, tasksToReplaceWith[i], priorityOfTask[i]);
+			}
+		}
+		
+		return foundTask != null;
 		
 	}
 	

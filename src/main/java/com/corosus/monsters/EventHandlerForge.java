@@ -3,6 +3,7 @@ package com.corosus.monsters;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.EntityAIAttackOnCollide;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.monster.IMob;
@@ -16,7 +17,8 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import CoroUtil.util.BlockCoord;
 import CoroUtil.world.player.DynamicDifficulty;
 
-import com.corosus.monsters.ai.tasks.TaskAntiAir;
+import com.corosus.monsters.ai.tasks.EntityAITaskEnhancedCombat;
+import com.corosus.monsters.ai.tasks.EntityAITaskAntiAir;
 import com.corosus.monsters.config.ConfigHWMonsters;
 
 import cpw.mods.fml.common.eventhandler.EventPriority;
@@ -26,8 +28,8 @@ import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 
 public class EventHandlerForge {
 	
-	public Class[] tasksToInject = new Class[] { TaskAntiAir.class };
-	public int[] taskPriorities = {2};
+	public Class[] tasksToInject = new Class[] { EntityAITaskEnhancedCombat.class, EntityAITaskAntiAir.class };
+	public int[] taskPriorities = { 2, 3 };
 	
 	@SubscribeEvent
 	public void tickServer(ServerTickEvent event) {
@@ -68,9 +70,12 @@ public class EventHandlerForge {
 				EntityCreature ent = (EntityCreature) event.entity;
 				
 				if (ent instanceof EntityZombie) {
-					if (ConfigHWMonsters.antiAir) {
+					/*if (ConfigHWMonsters.antiAir) {
 						BehaviorModifier.addTaskIfMissing(ent, TaskAntiAir.class, tasksToInject, taskPriorities[0]);
-					}
+					}*/
+					
+					//note, there are 2 instances of attack on collide, we are targetting the first one that is for player
+					BehaviorModifier.replaceTaskIfMissing(ent, EntityAIAttackOnCollide.class, tasksToInject, taskPriorities);
 				}
 				
 				if (!ent.getEntityData().getBoolean(BehaviorModifier.dataEntityEnhanced)) {
