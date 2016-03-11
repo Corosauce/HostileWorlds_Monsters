@@ -2,6 +2,8 @@ package com.corosus.monsters.ai.tasks;
 
 import java.util.UUID;
 
+import com.corosus.monsters.EventHandlerForge;
+
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -46,8 +48,8 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
     private boolean wasInAir = false;
     private boolean leapAttacking = false;
     
-    private static final UUID leapAttackDamageUUID = UUID.fromString("A9766B59-9566-4402-BC1F-2EE2A276D836");
-    private static final AttributeModifier leapAttackDamageModifier = new AttributeModifier(leapAttackDamageUUID, "Leap attack damage", 0.5D, 1);
+    private static final UUID lungeSpeedUUID = UUID.fromString("A9766B59-9566-4402-BC1F-2EE2A276D836");
+    private static final AttributeModifier lungeSpeedModifier = new AttributeModifier(lungeSpeedUUID, "lungeSpeed", 0.3D, 1);
     
     public EntityAITaskEnhancedCombat() {
 		this.classTarget = EntityPlayer.class;
@@ -140,7 +142,7 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
         double speedTowardsTargetLunge = 1.3D;
         long counterAttackDetectThreshold = 15;
         long counterAttackReuseDelay = 30;
-        double counterAttackLeapSpeed = 0.8D;
+        double counterAttackLeapSpeed = 0.6D;
         
         EntityLivingBase entitylivingbase = this.entity.getAttackTarget();
         this.entity.getLookHelper().setLookPositionWithEntity(entitylivingbase, 30.0F, 30.0F);
@@ -185,11 +187,25 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
             
             boolean pathResult = false;
             
-            if (d0 <= lungeDist * lungeDist) {
+            double curSpeed = entity.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
+            
+            if (d0 <= lungeDist * lungeDist && curSpeed < EventHandlerForge.speedCap) {
+            	if (this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).getModifier(lungeSpeedUUID) == null) {
+            		this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).applyModifier(this.lungeSpeedModifier);
+            	}
+            } else {
+            	if (this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).getModifier(lungeSpeedUUID) != null) {
+            		this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).removeModifier(this.lungeSpeedModifier);
+            	}
+            }
+            
+            pathResult = this.entity.getNavigator().tryMoveToEntityLiving(entitylivingbase, this.speedTowardsTarget);
+            
+            /*if (d0 <= lungeDist * lungeDist) {
             	pathResult = this.entity.getNavigator().tryMoveToEntityLiving(entitylivingbase, speedTowardsTargetLunge);
             } else {
-            	pathResult = this.entity.getNavigator().tryMoveToEntityLiving(entitylivingbase, this.speedTowardsTarget);
-            }
+            	
+            }*/
 
             if (!pathResult)
             {

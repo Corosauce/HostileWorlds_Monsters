@@ -14,6 +14,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import CoroUtil.config.ConfigDynamicDifficulty;
 import CoroUtil.util.BlockCoord;
 import CoroUtil.world.player.DynamicDifficulty;
 
@@ -30,6 +31,8 @@ public class EventHandlerForge {
 	
 	public Class[] tasksToInject = new Class[] { EntityAITaskEnhancedCombat.class, EntityAITaskAntiAir.class };
 	public int[] taskPriorities = { 2, 3 };
+	
+	public static double speedCap = 0.4D;
 	
 	@SubscribeEvent
 	public void tickServer(ServerTickEvent event) {
@@ -105,13 +108,30 @@ public class EventHandlerForge {
 						//100% chance to nullify knockback
 						//ent.getEntityAttribute(SharedMonsterAttributes.knockbackResistance).setBaseValue(1D);
 						
-						System.out.println("mobs current speed: " + ent.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue());
-						System.out.println("difficulty: " + difficulty);
-						System.out.println("hb %: " + healthBoostMultiply);
+						String debug = "";
+						
+						double curSpeed = ent.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
+						//avoid retardedly fast speeds
+						if (curSpeed < speedCap) {
+							double speedBoost = (Math.min(1D, difficulty) * ConfigDynamicDifficulty.difficulty_SpeedBuffMaxMultiplier);
+							debug += "speed % " + speedBoost;
+							ent.getEntityAttribute(SharedMonsterAttributes.movementSpeed).applyModifier(new AttributeModifier("speed multiplier boost", speedBoost, 2));
+						}
+						
+						debug += ", new speed: " + ent.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
+						//System.out.println("mobs final speed: " + ent.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue());
+						//System.out.println("difficulty: " + difficulty);
+						//System.out.println("hb %: " + healthBoostMultiply);
 						maxHealthClean = Math.round(ent.getMaxHealth() * 1000F) / 1000F;
-						System.out.println("health max: " + maxHealthClean);
+						//System.out.println("health max: " + maxHealthClean);
+						
+						debug += ", health boost: " + healthBoostMultiply;
+						
 						ent.setHealth(ent.getMaxHealth());
 						
+						debug += ", new health: " + maxHealthClean;
+						
+						System.out.println(debug);
 					}
 				}
 				
