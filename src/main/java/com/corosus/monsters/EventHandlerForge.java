@@ -72,6 +72,8 @@ public class EventHandlerForge {
 				World world = event.world;
 				EntityCreature ent = (EntityCreature) event.entity;
 				
+				
+				
 				if (ent instanceof EntityZombie) {
 					/*if (ConfigHWMonsters.antiAir) {
 						BehaviorModifier.addTaskIfMissing(ent, TaskAntiAir.class, tasksToInject, taskPriorities[0]);
@@ -154,6 +156,8 @@ public class EventHandlerForge {
 					//ent.motionY += 0.4D;
 				}
 			}
+			
+			
 		}
 	}
 }

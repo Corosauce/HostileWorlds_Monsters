@@ -140,7 +140,7 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 	    	    	}
 	    		} else {
 	    			
-	    			//if (tryingToGrab) {
+	    			if (tryingToGrab) {
 		    			
 		    			
 		    			if (dist < 2 || grabLock) {
@@ -153,7 +153,7 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 		    				}
 		    				tryingToGrab = false;
 		    			}
-	    			//}
+	    			}
 	    			
 	    		}
 	    	}

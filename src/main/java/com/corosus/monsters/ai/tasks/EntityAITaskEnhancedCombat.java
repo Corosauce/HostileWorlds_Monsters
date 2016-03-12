@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.corosus.monsters.EventHandlerForge;
 
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -95,8 +96,9 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
         {
             if (-- this.delayCounter <= 0)
             {
-                this.entityPathEntity = this.entity.getNavigator().getPathToEntityLiving(entitylivingbase);
-               this.delayCounter = 4 + this.entity.getRNG().nextInt(7);
+            	//System.out.println(this.entity.getEntityId() + " pathing to: " + entitylivingbase);
+                //this.entityPathEntity = this.entity.getNavigator().getPathToEntityLiving(entitylivingbase);
+            	this.delayCounter = 4 + this.entity.getRNG().nextInt(7);
                 return this.entityPathEntity != null;
             }
             else
@@ -142,13 +144,16 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
         double speedTowardsTargetLunge = 1.3D;
         long counterAttackDetectThreshold = 15;
         long counterAttackReuseDelay = 30;
-        double counterAttackLeapSpeed = 0.6D;
+        double counterAttackLeapSpeed = 0.8D;
         
         EntityLivingBase entitylivingbase = this.entity.getAttackTarget();
         this.entity.getLookHelper().setLookPositionWithEntity(entitylivingbase, 30.0F, 30.0F);
         double d0 = this.entity.getDistanceSq(entitylivingbase.posX, entitylivingbase.boundingBox.minY, entitylivingbase.posZ);
         double d1 = (double)(/*Math.sqrt(*/this.entity.width * 2.0F * this.entity.width * 2.0F/*)*/ + entitylivingbase.width);
         --this.delayCounter;
+        //TEST
+        //this.delayCounter = 0;
+        //this.attackTick = 0;
 
         if ((this.longMemory || this.entity.getEntitySenses().canSee(entitylivingbase)) && this.delayCounter <= 0 && 
         		(this.x == 0.0D && this.y == 0.0D && this.z == 0.0D || 
@@ -199,13 +204,12 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
             	}
             }
             
-            pathResult = this.entity.getNavigator().tryMoveToEntityLiving(entitylivingbase, this.speedTowardsTarget);
-            
-            /*if (d0 <= lungeDist * lungeDist) {
-            	pathResult = this.entity.getNavigator().tryMoveToEntityLiving(entitylivingbase, speedTowardsTargetLunge);
-            } else {
+            if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
             	
-            }*/
+	            System.out.println(this.entity.getEntityId() + " pathing to: " + entitylivingbase);
+	            pathResult = this.entity.getNavigator().tryMoveToEntityLiving(entitylivingbase, this.speedTowardsTarget);
+	            
+            }
 
             if (!pathResult)
             {
@@ -243,6 +247,10 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
 	                		wasInAir = false;
 	                		leapAttacking = true;
 	                		this.entity.getNavigator().clearPathEntity();
+	                		//important, if you clear path to entity, be sure to update or clear where hes supposed to be last moving to
+	                		//if you dont, it could look like they flee
+	                		this.entity.getMoveHelper().setMoveTo(entitylivingbase.posX, entitylivingbase.posY, entitylivingbase.posZ, 1D);
+	                		delayCounter = 0;
 	        			}
 	        			
         			}
@@ -265,14 +273,6 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
                 this.entity.swingItem();
             }
             
-            if (leapAttacking) {
-            	//this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.attackDamage).applyModifier(leapAttackDamageModifier);
-            }/* else {
-            	this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.attackDamage).removeModifier(leapAttackDamageModifier);
-            }*/
-            
-            
-
             this.entity.attackEntityAsMob(entitylivingbase);
             
             if (leapAttacking) {
@@ -288,12 +288,8 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
             	//entitylivingbase.attackEntityFrom();
                 //entitylivingbase.damageEntity(DamageSource.magic, (float) extraArmorPiercingDamage);
                 entitylivingbase.setHealth(entitylivingbase.getHealth() - (float) extraArmorPiercingDamage);
-                System.out.println("hit!: " + extraArmorPiercingDamage);
+                //System.out.println("hit!: " + extraArmorPiercingDamage);
                 
-            }
-            
-            if (leapAttacking) {
-            	//this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.attackDamage).removeModifier(leapAttackDamageModifier);
             }
             
         }
