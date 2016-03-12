@@ -72,7 +72,8 @@ public class EventHandlerForge {
 				World world = event.world;
 				EntityCreature ent = (EntityCreature) event.entity;
 				
-				
+				//NO ENHANCED CHILDREN!
+				if (ent.isChild()) return;
 				
 				if (ent instanceof EntityZombie) {
 					/*if (ConfigHWMonsters.antiAir) {
@@ -107,15 +108,15 @@ public class EventHandlerForge {
 						double healthBoostMultiply = (double)(/*1F + */difficulty * ConfigHWMonsters.scaleHealth);
 						ent.getEntityAttribute(SharedMonsterAttributes.maxHealth).applyModifier(new AttributeModifier("health multiplier boost", healthBoostMultiply, 2));
 						
-						//100% chance to nullify knockback
-						//ent.getEntityAttribute(SharedMonsterAttributes.knockbackResistance).setBaseValue(1D);
+						//chance to ignore knockback based on difficulty
+						ent.getEntityAttribute(SharedMonsterAttributes.knockbackResistance).setBaseValue(difficulty);
 						
 						String debug = "";
 						
 						double curSpeed = ent.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
 						//avoid retardedly fast speeds
 						if (curSpeed < speedCap) {
-							double speedBoost = (Math.min(1D, difficulty) * ConfigDynamicDifficulty.difficulty_SpeedBuffMaxMultiplier);
+							double speedBoost = (Math.min(0.5D, difficulty * ConfigDynamicDifficulty.difficulty_SpeedBuffMaxMultiplier));
 							debug += "speed % " + speedBoost;
 							ent.getEntityAttribute(SharedMonsterAttributes.movementSpeed).applyModifier(new AttributeModifier("speed multiplier boost", speedBoost, 2));
 						}

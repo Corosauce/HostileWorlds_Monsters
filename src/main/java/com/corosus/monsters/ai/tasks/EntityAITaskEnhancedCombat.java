@@ -1,5 +1,6 @@
 package com.corosus.monsters.ai.tasks;
 
+import java.util.Random;
 import java.util.UUID;
 
 import com.corosus.monsters.EventHandlerForge;
@@ -19,6 +20,7 @@ import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import CoroPets.ai.ITaskInitializer;
 import CoroUtil.entity.data.AttackData;
+import CoroUtil.util.BlockCoord;
 import CoroUtil.world.player.DynamicDifficulty;
 
 public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskInitializer
@@ -51,6 +53,9 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
     
     private static final UUID lungeSpeedUUID = UUID.fromString("A9766B59-9566-4402-BC1F-2EE2A276D836");
     private static final AttributeModifier lungeSpeedModifier = new AttributeModifier(lungeSpeedUUID, "lungeSpeed", 0.3D, 1);
+    
+    private boolean useLunging = false;
+    private boolean useLeapAttack = false;
     
     public EntityAITaskEnhancedCombat() {
 		this.classTarget = EntityPlayer.class;
@@ -97,7 +102,9 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
             if (-- this.delayCounter <= 0)
             {
             	//System.out.println(this.entity.getEntityId() + " pathing to: " + entitylivingbase);
-                //this.entityPathEntity = this.entity.getNavigator().getPathToEntityLiving(entitylivingbase);
+            	if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
+            		this.entityPathEntity = this.entity.getNavigator().getPathToEntityLiving(entitylivingbase);
+            	}
             	this.delayCounter = 4 + this.entity.getRNG().nextInt(7);
                 return this.entityPathEntity != null;
             }
@@ -192,21 +199,23 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
             
             boolean pathResult = false;
             
-            double curSpeed = entity.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
-            
-            if (d0 <= lungeDist * lungeDist && curSpeed < EventHandlerForge.speedCap) {
-            	if (this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).getModifier(lungeSpeedUUID) == null) {
-            		this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).applyModifier(this.lungeSpeedModifier);
-            	}
-            } else {
-            	if (this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).getModifier(lungeSpeedUUID) != null) {
-            		this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).removeModifier(this.lungeSpeedModifier);
-            	}
+            if (useLunging) {
+	            double curSpeed = entity.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
+	            
+	            if (d0 <= lungeDist * lungeDist && curSpeed < EventHandlerForge.speedCap) {
+	            	if (this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).getModifier(lungeSpeedUUID) == null) {
+	            		this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).applyModifier(this.lungeSpeedModifier);
+	            	}
+	            } else {
+	            	if (this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).getModifier(lungeSpeedUUID) != null) {
+	            		this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).removeModifier(this.lungeSpeedModifier);
+	            	}
+	            }
             }
             
             if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
             	
-	            System.out.println(this.entity.getEntityId() + " pathing to: " + entitylivingbase);
+	            //System.out.println(this.entity.getEntityId() + " pathing to: " + entitylivingbase);
 	            pathResult = this.entity.getNavigator().tryMoveToEntityLiving(entitylivingbase, this.speedTowardsTarget);
 	            
             }
@@ -220,47 +229,49 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
         this.attackTick = Math.max(this.attackTick - 1, 0);
         
         //counter attack leap
-        if (this.entity.onGround) {
-        	leapAttacking = false;
-        	if (wasInAir) {
-        		
-        		AttackData data = DynamicDifficulty.lookupEntToDamageLog.get(entity.getEntityId());
-        		if (data != null) {
-        			if (data.getLastLogTime() > this.counterAttackLastHitTime) {
-	        			if (data.getLastLogTime() + counterAttackDetectThreshold < entity.worldObj.getTotalWorldTime()) {
-	        				this.counterAttackLastHitTime = data.getLastLogTime() + counterAttackReuseDelay;
-	        				
-	        				double vecX = entitylivingbase.posX - this.entity.posX;
-	        		        double vecZ = entitylivingbase.posZ - this.entity.posZ;
-	        		        float xzDist = MathHelper.sqrt_double(vecX * vecX + vecZ * vecZ);
-	        		        double dynamicReduce = Math.min(counterAttackLeapSpeed, counterAttackLeapSpeed / (3D-Math.min(3, xzDist)));
-	        		        this.entity.motionX += vecX / (double)xzDist * dynamicReduce;
-	        		        this.entity.motionZ += vecZ / (double)xzDist * dynamicReduce;
-	        		        this.entity.motionY = 0.4D;
-	        		        
-	        		        //extra vertical
-	        		        if (this.entity.boundingBox.minY < entitylivingbase.boundingBox.minY) {
-	        		        	double extraY = Math.min(5D, entitylivingbase.boundingBox.minY - this.entity.boundingBox.minY);
-	        		        	this.entity.motionY += 0.1D * extraY;
-	        		        }
-	        		        
-	                		wasInAir = false;
-	                		leapAttacking = true;
-	                		this.entity.getNavigator().clearPathEntity();
-	                		//important, if you clear path to entity, be sure to update or clear where hes supposed to be last moving to
-	                		//if you dont, it could look like they flee
-	                		this.entity.getMoveHelper().setMoveTo(entitylivingbase.posX, entitylivingbase.posY, entitylivingbase.posZ, 1D);
-	                		delayCounter = 0;
+        if (useLeapAttack) {
+	        if (this.entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
+	        	leapAttacking = false;
+	        	//if (wasInAir) {
+	        		
+	        		AttackData data = DynamicDifficulty.lookupEntToDamageLog.get(entity.getEntityId());
+	        		if (data != null) {
+	        			if (data.getLastLogTime() > this.counterAttackLastHitTime) {
+		        			if (data.getLastLogTime() + counterAttackDetectThreshold < entity.worldObj.getTotalWorldTime()) {
+		        				this.counterAttackLastHitTime = data.getLastLogTime() + counterAttackReuseDelay;
+		        				
+		        				double vecX = entitylivingbase.posX - this.entity.posX;
+		        		        double vecZ = entitylivingbase.posZ - this.entity.posZ;
+		        		        float xzDist = MathHelper.sqrt_double(vecX * vecX + vecZ * vecZ);
+		        		        double dynamicReduce = Math.min(counterAttackLeapSpeed, counterAttackLeapSpeed / (3D-Math.min(3, xzDist)));
+		        		        this.entity.motionX += vecX / (double)xzDist * dynamicReduce;
+		        		        this.entity.motionZ += vecZ / (double)xzDist * dynamicReduce;
+		        		        this.entity.motionY = 0.4D;
+		        		        
+		        		        //extra vertical
+		        		        if (this.entity.boundingBox.minY < entitylivingbase.boundingBox.minY) {
+		        		        	double extraY = Math.min(5D, entitylivingbase.boundingBox.minY - this.entity.boundingBox.minY);
+		        		        	this.entity.motionY += 0.1D * extraY;
+		        		        }
+		        		        
+		                		wasInAir = false;
+		                		leapAttacking = true;
+		                		this.entity.getNavigator().clearPathEntity();
+		                		//important, if you clear path to entity, be sure to update or clear where hes supposed to be last moving to
+		                		//if you dont, it could look like they flee
+		                		this.entity.getMoveHelper().setMoveTo(entitylivingbase.posX, entitylivingbase.posY, entitylivingbase.posZ, 1D);
+		                		delayCounter = 0;
+		        			}
+		        			
 	        			}
-	        			
-        			}
-        		}
-        		
-        		
-        	}
-        	
-        } else {
-        	wasInAir = true;
+	        		}
+	        		
+	        		
+	        	//}
+	        	
+	        } else {
+	        	wasInAir = true;
+	        }
         }
         
         //actual attack code
@@ -299,5 +310,26 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
 	public void setEntity(EntityCreature creature) {
 		this.entity = creature;
 		this.worldObj = this.entity.worldObj;
+		
+		EntityPlayer player = DynamicDifficulty.getBestPlayerForArea(worldObj, new BlockCoord(entity));
+		
+		if (player != null) {
+			float difficulty = DynamicDifficulty.getDifficultyScaleAverage(worldObj, player, new BlockCoord(entity));
+			
+			Random rand = new Random();
+			if (rand.nextFloat() < difficulty) {
+				useLeapAttack = true;
+			} else {
+				
+			}
+			
+			if (rand.nextFloat() < difficulty) {
+				useLunging = true;
+			} else {
+				
+			}
+			
+			System.out.println("leap? " + useLeapAttack + " lunge? " + useLunging);
+		}
 	}
 }
