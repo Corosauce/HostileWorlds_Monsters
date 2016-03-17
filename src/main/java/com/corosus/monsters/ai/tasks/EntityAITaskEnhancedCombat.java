@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import com.corosus.monsters.EventHandlerForge;
+import com.corosus.monsters.config.ConfigHWMonsters;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityCreature;
@@ -52,7 +53,7 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
     private boolean leapAttacking = false;
     
     private static final UUID lungeSpeedUUID = UUID.fromString("A9766B59-9566-4402-BC1F-2EE2A276D836");
-    private static final AttributeModifier lungeSpeedModifier = new AttributeModifier(lungeSpeedUUID, "lungeSpeed", 0.3D, 1);
+    private static final AttributeModifier lungeSpeedModifier = new AttributeModifier(lungeSpeedUUID, "lungeSpeed", ConfigHWMonsters.lungeSpeed, 1);
     
     private boolean useLunging = false;
     private boolean useLeapAttack = false;
@@ -147,11 +148,11 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
     public void updateTask()
     {
     	//add to config!
-    	double lungeDist = 7D;
-        double speedTowardsTargetLunge = 1.3D;
-        long counterAttackDetectThreshold = 15;
-        long counterAttackReuseDelay = 30;
-        double counterAttackLeapSpeed = 0.8D;
+    	double lungeDist = ConfigHWMonsters.lungeDist;
+        double speedTowardsTargetLunge = ConfigHWMonsters.speedTowardsTargetLunge;
+        long counterAttackDetectThreshold = ConfigHWMonsters.counterAttackDetectThreshold;
+        long counterAttackReuseDelay = ConfigHWMonsters.counterAttackReuseDelay;
+        double counterAttackLeapSpeed = ConfigHWMonsters.counterAttackLeapSpeed;
         
         EntityLivingBase entitylivingbase = this.entity.getAttackTarget();
         this.entity.getLookHelper().setLookPositionWithEntity(entitylivingbase, 30.0F, 30.0F);
@@ -317,19 +318,19 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
 			float difficulty = DynamicDifficulty.getDifficultyScaleAverage(worldObj, player, new BlockCoord(entity));
 			
 			Random rand = new Random();
-			if (rand.nextFloat() < difficulty) {
+			if (rand.nextFloat() < difficulty * ConfigHWMonsters.scaleLeapAttackUseChance) {
 				useLeapAttack = true;
 			} else {
 				
 			}
 			
-			if (rand.nextFloat() < difficulty) {
+			if (rand.nextFloat() < difficulty * ConfigHWMonsters.scaleLungeUseChance) {
 				useLunging = true;
 			} else {
 				
 			}
 			
-			System.out.println("leap? " + useLeapAttack + " lunge? " + useLunging);
+			//System.out.println("leap? " + useLeapAttack + " lunge? " + useLunging);
 		}
 	}
 }

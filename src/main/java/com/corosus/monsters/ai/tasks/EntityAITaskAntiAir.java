@@ -1,15 +1,22 @@
 package com.corosus.monsters.ai.tasks;
 
-import java.util.List;
+import io.netty.util.HashedWheelTimer;
 
-import com.corosus.monsters.config.ConfigHWMonsters;
+import java.util.List;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.play.server.S12PacketEntityVelocity;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.AxisAlignedBB;
 import CoroPets.ai.ITaskInitializer;
+import CoroUtil.world.player.DynamicDifficulty;
+
+import com.corosus.monsters.config.ConfigHWMonsters;
 
 public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitializer
 {
@@ -23,7 +30,7 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
     private boolean tryingToGrab = false;
     private boolean grabLock = false;
     
-    private String detectOnGroundTime = "HW_M_detectOnGroundTime";
+    //private String detectOnGroundTime = "HW_M_detectOnGroundTime";
 
     public EntityAITaskAntiAir()
     {
@@ -105,68 +112,87 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 	    		
 	    		double dist = entity.getDistanceToEntity(targetLastTracked);
 	    		
-	    		long time = targetLastTracked.getEntityData().getLong(detectOnGroundTime);
-	    		boolean inAirLongEnough = time + (long)ConfigHWMonsters.antiAirLeapRate < entity.worldObj.getTotalWorldTime();
+	    		//System.out.println(targetLastTracked.motionY);
 	    		
-	    		if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
-	    			
-	    			
-	    			
-	    			
-	    	    	if (leapDelayCur == 0 && inAirLongEnough) {
-		    			
-		    			double vecX = targetLastTracked.posX - entity.posX;
-		    			double vecY = targetLastTracked.posY - entity.posY;
-		    			double vecZ = targetLastTracked.posZ - entity.posZ;
-		    			
-		    			if (dist != 0) {
-		    				vecX /= dist;
-		    				vecY /= dist;
-		    				vecZ /= dist;
-		    				
-		    				double speed = ConfigHWMonsters.antiAirLeapSpeed * dist;
-		    				double xzAmp = 1.3D;
-		    				
-		    				entity.motionX = vecX * speed * xzAmp;
-		    				entity.motionY = (vecY * speed) + 0.1D;
-		    				entity.motionZ = vecZ * speed * xzAmp;
-		    				
-		    				//entity.onGround = false;
-		    				
-		    				leapDelayCur = leapDelayRate;
-		    				
-		    				tryingToGrab = true;
-		    			}
-	    	    	}
-	    		} else {
-	    			
-	    			if (tryingToGrab) {
+	    		
+	    		long time = targetLastTracked.getEntityData().getLong(DynamicDifficulty.dataPlayerDetectInAirTime);
+	    		boolean inAirLongEnough = time > leapDelayRate;
+	    		
+	    		if (ConfigHWMonsters.antiAirType == 0) {
+	    		
+		    		if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
 		    			
 		    			
-		    			if (dist < 2 || grabLock) {
-		    				if (targetLastTracked.ridingEntity == null) { 
-			    				targetLastTracked.mountEntity(entity);
-			    				grabLock = true;
-			    				if (autoAttackTest && targetLastTracked.capabilities.isFlying) {
-			    					targetLastTracked.capabilities.isFlying = false;
+		    			
+		    			
+		    	    	if (leapDelayCur == 0 && inAirLongEnough) {
+			    			
+			    			double vecX = targetLastTracked.posX - entity.posX;
+			    			double vecY = targetLastTracked.posY - entity.posY;
+			    			double vecZ = targetLastTracked.posZ - entity.posZ;
+			    			
+			    			if (dist != 0) {
+			    				vecX /= dist;
+			    				vecY /= dist;
+			    				vecZ /= dist;
+			    				
+			    				double speed = ConfigHWMonsters.antiAirLeapSpeed * dist;
+			    				double xzAmp = 1.3D;
+			    				
+			    				entity.motionX = vecX * speed * xzAmp;
+			    				entity.motionY = (vecY * speed) + 0.1D;
+			    				entity.motionZ = vecZ * speed * xzAmp;
+			    				
+			    				//entity.onGround = false;
+			    				
+			    				leapDelayCur = leapDelayRate;
+			    				
+			    				tryingToGrab = true;
+			    			}
+		    	    	}
+		    		} else {
+		    			
+		    			if (tryingToGrab) {
+			    			
+			    			
+			    			if (dist < 2 || grabLock) {
+			    				if (targetLastTracked.ridingEntity == null) { 
+				    				targetLastTracked.mountEntity(entity);
+				    				grabLock = true;
+				    				if (autoAttackTest && targetLastTracked.capabilities.isFlying) {
+				    					targetLastTracked.capabilities.isFlying = false;
+				    				}
 			    				}
-		    				}
-		    				tryingToGrab = false;
+			    				tryingToGrab = false;
+			    			}
 		    			}
+		    			
+		    		}
+	    		} else if (ConfigHWMonsters.antiAirType == 1) {
+	    			if (inAirLongEnough) {
+			    		targetLastTracked.addPotionEffect(new PotionEffect(Potion.weakness.getId(), 100, 2, false));
+			    		targetLastTracked.addPotionEffect(new PotionEffect(Potion.moveSlowdown.getId(), 100, 2, false));
+			    		targetLastTracked.addPotionEffect(new PotionEffect(Potion.hunger.getId(), 100, 2, false));
+			    		
+			    		if (targetLastTracked instanceof EntityPlayerMP) {
+			    			EntityPlayerMP entMP = (EntityPlayerMP) targetLastTracked;
+			    			entMP.playerNetServerHandler.sendPacket(new S12PacketEntityVelocity(targetLastTracked.getEntityId(), 0, -0.4D, 0));
+			    		}
 	    			}
-	    			
 	    		}
 	    	}
     	}
     	
-    	if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
-    		if (leapDelayCur > 0) {
-	    		leapDelayCur--;
-    		}
-    		grabLock = false;
-	    	if (entity.riddenByEntity instanceof EntityPlayer) {
-				entity.riddenByEntity.mountEntity(null);
-			}
+    	if (ConfigHWMonsters.antiAirType == 0) {
+	    	if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
+	    		if (leapDelayCur > 0) {
+		    		leapDelayCur--;
+	    		}
+	    		grabLock = false;
+		    	if (entity.riddenByEntity instanceof EntityPlayer) {
+					entity.riddenByEntity.mountEntity(null);
+				}
+	    	}
     	}
     }
     
@@ -183,22 +209,21 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
         {
         	EntityPlayer ent = (EntityPlayer)list.get(j);
         	
-        	//TODO: better generic flying detection
-        	if ((!ent.capabilities.isCreativeMode || autoAttackTest)) {
-        		if ((ent.capabilities.isFlying || (!ent.onGround && !ent.isInWater() && !ent.isInsideOfMaterial(Material.lava)))) {
-        			if (ent.canEntityBeSeen(entity) && ent.ridingEntity == null) {
-		        		double dist = ent.getDistanceToEntity(entity);
-		        		if (dist < closest) {
-		        			closest = dist;
-		        			closestPlayer = ent;
-		        		}
-        			}
-        		} else {
-        			ent.getEntityData().setLong(detectOnGroundTime, ent.worldObj.getTotalWorldTime());
-        		}
+        	if (isPlayerFlying(ent)) {
+        		if (ent.canEntityBeSeen(entity) && ent.ridingEntity == null) {
+	        		double dist = ent.getDistanceToEntity(entity);
+	        		if (dist < closest) {
+	        			closest = dist;
+	        			closestPlayer = ent;
+	        		}
+    			}
         	}
         }
     	
     	return closestPlayer;
+    }
+    
+    public boolean isPlayerFlying(EntityPlayer player) {
+    	return player.getEntityData().getLong(DynamicDifficulty.dataPlayerDetectInAirTime) > 0;
     }
 }

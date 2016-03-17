@@ -14,12 +14,12 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import CoroUtil.config.ConfigDynamicDifficulty;
 import CoroUtil.util.BlockCoord;
+import CoroUtil.util.CoroUtilEntity;
 import CoroUtil.world.player.DynamicDifficulty;
 
-import com.corosus.monsters.ai.tasks.EntityAITaskEnhancedCombat;
 import com.corosus.monsters.ai.tasks.EntityAITaskAntiAir;
+import com.corosus.monsters.ai.tasks.EntityAITaskEnhancedCombat;
 import com.corosus.monsters.config.ConfigHWMonsters;
 
 import cpw.mods.fml.common.eventhandler.EventPriority;
@@ -75,22 +75,26 @@ public class EventHandlerForge {
 				//NO ENHANCED CHILDREN!
 				if (ent.isChild()) return;
 				
-				if (ent instanceof EntityZombie) {
-					/*if (ConfigHWMonsters.antiAir) {
-						BehaviorModifier.addTaskIfMissing(ent, TaskAntiAir.class, tasksToInject, taskPriorities[0]);
-					}*/
-					
-					//note, there are 2 instances of attack on collide, we are targetting the first one that is for player
-					BehaviorModifier.replaceTaskIfMissing(ent, EntityAIAttackOnCollide.class, tasksToInject, taskPriorities);
-				}
+				EntityPlayer player = DynamicDifficulty.getBestPlayerForArea(world, new BlockCoord(ent));
 				
-				if (!ent.getEntityData().getBoolean(BehaviorModifier.dataEntityEnhanced)) {
-					ent.getEntityData().setBoolean(BehaviorModifier.dataEntityEnhanced, true);
-					//BehaviorModifier.addTaskIfMissing(ent, TaskDigTowardsTarget.class, tasksToInject, taskPriorities[0]);
+				if (player != null) {
+					if (ConfigHWMonsters.blackListPlayers.contains(CoroUtilEntity.getName(player))) {
+						return;
+					}
 					
-					EntityPlayer player = DynamicDifficulty.getBestPlayerForArea(world, new BlockCoord(ent));
+					if (ent instanceof EntityZombie) {
+						/*if (ConfigHWMonsters.antiAir) {
+							BehaviorModifier.addTaskIfMissing(ent, TaskAntiAir.class, tasksToInject, taskPriorities[0]);
+						}*/
+						
+						//note, there are 2 instances of attack on collide, we are targetting the first one that is for player
+						BehaviorModifier.replaceTaskIfMissing(ent, EntityAIAttackOnCollide.class, tasksToInject, taskPriorities);
+					}
 					
-					if (player != null) {
+					if (!ent.getEntityData().getBoolean(BehaviorModifier.dataEntityEnhanced)) {
+						ent.getEntityData().setBoolean(BehaviorModifier.dataEntityEnhanced, true);
+						//BehaviorModifier.addTaskIfMissing(ent, TaskDigTowardsTarget.class, tasksToInject, taskPriorities[0]);
+						
 						float difficulty = DynamicDifficulty.getDifficultyScaleAverage(world, player, new BlockCoord(ent));
 						
 						/**
@@ -109,14 +113,14 @@ public class EventHandlerForge {
 						ent.getEntityAttribute(SharedMonsterAttributes.maxHealth).applyModifier(new AttributeModifier("health multiplier boost", healthBoostMultiply, 2));
 						
 						//chance to ignore knockback based on difficulty
-						ent.getEntityAttribute(SharedMonsterAttributes.knockbackResistance).setBaseValue(difficulty);
+						ent.getEntityAttribute(SharedMonsterAttributes.knockbackResistance).setBaseValue(difficulty * ConfigHWMonsters.scaleKnockbackResistance);
 						
 						String debug = "";
 						
 						double curSpeed = ent.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
 						//avoid retardedly fast speeds
 						if (curSpeed < speedCap) {
-							double speedBoost = (Math.min(0.5D, difficulty * ConfigDynamicDifficulty.difficulty_SpeedBuffMaxMultiplier));
+							double speedBoost = (Math.min(ConfigHWMonsters.scaleSpeedCap, difficulty * ConfigHWMonsters.scaleSpeed));
 							debug += "speed % " + speedBoost;
 							ent.getEntityAttribute(SharedMonsterAttributes.movementSpeed).applyModifier(new AttributeModifier("speed multiplier boost", speedBoost, 2));
 						}
@@ -134,8 +138,9 @@ public class EventHandlerForge {
 						
 						debug += ", new health: " + maxHealthClean;
 						
-						System.out.println(debug);
+						//System.out.println(debug);
 					}
+					
 				}
 				
 				
