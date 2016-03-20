@@ -14,6 +14,8 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.AxisAlignedBB;
 import CoroPets.ai.ITaskInitializer;
+import CoroUtil.forge.CoroAI;
+import CoroUtil.packet.PacketHelper;
 import CoroUtil.world.player.DynamicDifficulty;
 
 import com.corosus.monsters.config.ConfigHWMonsters;
@@ -30,7 +32,7 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
     private boolean tryingToGrab = false;
     private boolean grabLock = false;
     
-    //private String detectOnGroundTime = "HW_M_detectOnGroundTime";
+    private String dataPlayerLastPullDownTick = "HW_M_lastPullDownTick";
 
     public EntityAITaskAntiAir()
     {
@@ -176,7 +178,12 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 			    		
 			    		if (targetLastTracked instanceof EntityPlayerMP) {
 			    			EntityPlayerMP entMP = (EntityPlayerMP) targetLastTracked;
-			    			entMP.playerNetServerHandler.sendPacket(new S12PacketEntityVelocity(targetLastTracked.getEntityId(), 0, -0.4D, 0));
+			    			long lastPullTime = targetLastTracked.getEntityData().getLong(dataPlayerLastPullDownTick);
+			    			if (entMP.worldObj.getTotalWorldTime() != lastPullTime) {
+			    				targetLastTracked.getEntityData().setLong(dataPlayerLastPullDownTick, entMP.worldObj.getTotalWorldTime());
+				    			//entMP.playerNetServerHandler.sendPacket(new S12PacketEntityVelocity(targetLastTracked.getEntityId(), 0, -0.4D, 0));
+				    			CoroAI.eventChannel.sendTo(PacketHelper.getPacketForRelativeMotion(entMP, 0, -0.4D, 0), entMP);
+			    			}
 			    		}
 	    			}
 	    		}
