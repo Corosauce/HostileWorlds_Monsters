@@ -1,7 +1,5 @@
 package com.corosus.monsters.ai.tasks;
 
-import io.netty.util.HashedWheelTimer;
-
 import java.util.List;
 
 import net.minecraft.block.material.Material;
@@ -9,11 +7,10 @@ import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.AxisAlignedBB;
-import CoroPets.ai.ITaskInitializer;
+import net.minecraft.util.math.AxisAlignedBB;
+import CoroUtil.ai.ITaskInitializer;
 import CoroUtil.forge.CoroAI;
 import CoroUtil.packet.PacketHelper;
 import CoroUtil.world.player.DynamicDifficulty;
@@ -122,7 +119,7 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 	    		
 	    		if (ConfigHWMonsters.antiAirType == 0) {
 	    		
-		    		if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
+		    		if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.LAVA)) {
 		    			
 		    			
 		    			
@@ -158,7 +155,7 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 			    			
 			    			
 			    			if (dist < 2 || grabLock) {
-			    				if (targetLastTracked.ridingEntity == null) { 
+			    				if (targetLastTracked.getRidingEntity() == null) { 
 				    				targetLastTracked.mountEntity(entity);
 				    				grabLock = true;
 				    				if (autoAttackTest && targetLastTracked.capabilities.isFlying) {
@@ -186,7 +183,7 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 			    				if (ConfigHWMonsters.antiAirUseRelativeMotion) {
 			    					CoroAI.eventChannel.sendTo(PacketHelper.getPacketForRelativeMotion(entMP, 0, ConfigHWMonsters.antiAirPullDownRate, 0), entMP);
 			    				} else {
-			    					entMP.playerNetServerHandler.sendPacket(new S12PacketEntityVelocity(targetLastTracked.getEntityId(), 0, ConfigHWMonsters.antiAirPullDownRate, 0));
+			    					//entMP.playerNetServerHandler.sendPacket(new S12PacketEntityVelocity(targetLastTracked.getEntityId(), 0, ConfigHWMonsters.antiAirPullDownRate, 0));
 			    				}
 			    			}
 			    		}
@@ -196,7 +193,7 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
     	}
     	
     	if (ConfigHWMonsters.antiAirType == 0) {
-	    	if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
+	    	if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.LAVA)) {
 	    		if (leapDelayCur > 0) {
 		    		leapDelayCur--;
 	    		}
@@ -211,7 +208,7 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
     public EntityPlayer getFlyingPlayerNear() {
     	
     	int findRange = ConfigHWMonsters.antiAirTryDist;
-    	AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(entity.posX, entity.posY, entity.posZ, entity.posX, entity.posY, entity.posZ);
+    	AxisAlignedBB aabb = new AxisAlignedBB(entity.posX, entity.posY, entity.posZ, entity.posX, entity.posY, entity.posZ);
 		aabb = aabb.expand(findRange, findRange, findRange);
 		List list = entity.worldObj.getEntitiesWithinAABB(EntityPlayer.class, aabb);
 		boolean found = false;
@@ -222,7 +219,7 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
         	EntityPlayer ent = (EntityPlayer)list.get(j);
         	
         	if (isPlayerFlying(ent)) {
-        		if (ent.canEntityBeSeen(entity) && ent.ridingEntity == null) {
+        		if (ent.canEntityBeSeen(entity) && ent.getRidingEntity() == null) {
 	        		double dist = ent.getDistanceToEntity(entity);
 	        		if (dist < closest) {
 	        			closest = dist;

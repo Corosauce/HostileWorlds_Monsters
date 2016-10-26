@@ -3,7 +3,6 @@ package com.corosus.monsters;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.EntityAIAttackOnCollide;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.monster.IMob;
@@ -14,6 +13,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import CoroUtil.util.BlockCoord;
 import CoroUtil.util.CoroUtilEntity;
 import CoroUtil.world.player.DynamicDifficulty;
@@ -21,11 +24,6 @@ import CoroUtil.world.player.DynamicDifficulty;
 import com.corosus.monsters.ai.tasks.EntityAITaskAntiAir;
 import com.corosus.monsters.ai.tasks.EntityAITaskEnhancedCombat;
 import com.corosus.monsters.config.ConfigHWMonsters;
-
-import cpw.mods.fml.common.eventhandler.EventPriority;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
-import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 
 public class EventHandlerForge {
 	
@@ -66,11 +64,11 @@ public class EventHandlerForge {
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityJoinWorld(EntityJoinWorldEvent event) {
-		if (event.entity.worldObj.isRemote) return;
-		if (event.entity instanceof IMob) {
-			if (event.entity instanceof EntityCreature) {
-				World world = event.world;
-				EntityCreature ent = (EntityCreature) event.entity;
+		if (event.getEntity().worldObj.isRemote) return;
+		if (event.getEntity() instanceof IMob) {
+			if (event.getEntity() instanceof EntityCreature) {
+				World world = event.getWorld();
+				EntityCreature ent = (EntityCreature) event.getEntity();
 				
 				//NO ENHANCED CHILDREN!
 				if (ent.isChild()) return;
@@ -116,22 +114,22 @@ public class EventHandlerForge {
 						//System.out.println("health max before: " + maxHealthClean);
 						
 						double healthBoostMultiply = (double)(/*1F + */difficulty * ConfigHWMonsters.scaleHealth);
-						ent.getEntityAttribute(SharedMonsterAttributes.maxHealth).applyModifier(new AttributeModifier("health multiplier boost", healthBoostMultiply, 2));
+						ent.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).applyModifier(new AttributeModifier("health multiplier boost", healthBoostMultiply, 2));
 						
 						//chance to ignore knockback based on difficulty
-						ent.getEntityAttribute(SharedMonsterAttributes.knockbackResistance).setBaseValue(difficulty * ConfigHWMonsters.scaleKnockbackResistance);
+						ent.getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(difficulty * ConfigHWMonsters.scaleKnockbackResistance);
 						
 						String debug = "";
 						
-						double curSpeed = ent.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
+						double curSpeed = ent.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue();
 						//avoid retardedly fast speeds
 						if (curSpeed < speedCap) {
 							double speedBoost = (Math.min(ConfigHWMonsters.scaleSpeedCap, difficulty * ConfigHWMonsters.scaleSpeed));
 							debug += "speed % " + speedBoost;
-							ent.getEntityAttribute(SharedMonsterAttributes.movementSpeed).applyModifier(new AttributeModifier("speed multiplier boost", speedBoost, 2));
+							ent.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).applyModifier(new AttributeModifier("speed multiplier boost", speedBoost, 2));
 						}
 						
-						debug += ", new speed: " + ent.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
+						debug += ", new speed: " + ent.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue();
 						//System.out.println("mobs final speed: " + ent.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue());
 						//System.out.println("difficulty: " + difficulty);
 						//System.out.println("hb %: " + healthBoostMultiply);
@@ -156,13 +154,13 @@ public class EventHandlerForge {
 	
 	@SubscribeEvent(priority = EventPriority.HIGH)
     public void onLivingHurt(LivingHurtEvent event) {
-		if (event.entity.worldObj.isRemote) return;
-		if (event.entity instanceof IMob) {
-			if (event.entity instanceof EntityLiving) {
-				World world = event.entity.worldObj;
-				EntityLiving ent = (EntityLiving) event.entity;
+		if (event.getEntity().worldObj.isRemote) return;
+		if (event.getEntity() instanceof IMob) {
+			if (event.getEntity() instanceof EntityLiving) {
+				World world = event.getEntity().worldObj;
+				EntityLiving ent = (EntityLiving) event.getEntity();
 				
-				if (event.source instanceof EntityDamageSource || event.source instanceof EntityDamageSourceIndirect) {
+				if (event.getSource() instanceof EntityDamageSource || event.getSource() instanceof EntityDamageSourceIndirect) {
 					//test
 					//System.out.println("boop!");
 					//ent.motionY += 0.4D;

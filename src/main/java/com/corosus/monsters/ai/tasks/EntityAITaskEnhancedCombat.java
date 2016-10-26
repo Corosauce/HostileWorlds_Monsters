@@ -3,9 +3,6 @@ package com.corosus.monsters.ai.tasks;
 import java.util.Random;
 import java.util.UUID;
 
-import com.corosus.monsters.EventHandlerForge;
-import com.corosus.monsters.config.ConfigHWMonsters;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
@@ -13,16 +10,18 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.pathfinding.PathEntity;
 import net.minecraft.pathfinding.PathPoint;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
-import CoroPets.ai.ITaskInitializer;
+import CoroUtil.ai.ITaskInitializer;
 import CoroUtil.entity.data.AttackData;
 import CoroUtil.util.BlockCoord;
 import CoroUtil.world.player.DynamicDifficulty;
+
+import com.corosus.monsters.EventHandlerForge;
+import com.corosus.monsters.config.ConfigHWMonsters;
 
 public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskInitializer
 {
@@ -103,7 +102,7 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
             if (-- this.delayCounter <= 0)
             {
             	//System.out.println(this.entity.getEntityId() + " pathing to: " + entitylivingbase);
-            	if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
+            	if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.LAVA)) {
             		this.entityPathEntity = this.entity.getNavigator().getPathToEntityLiving(entitylivingbase);
             	}
             	this.delayCounter = 4 + this.entity.getRNG().nextInt(7);
@@ -156,7 +155,7 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
         
         EntityLivingBase entitylivingbase = this.entity.getAttackTarget();
         this.entity.getLookHelper().setLookPositionWithEntity(entitylivingbase, 30.0F, 30.0F);
-        double d0 = this.entity.getDistanceSq(entitylivingbase.posX, entitylivingbase.boundingBox.minY, entitylivingbase.posZ);
+        double d0 = this.entity.getDistanceSq(entitylivingbase.posX, entitylivingbase.getEntityBoundingBox().minY, entitylivingbase.posZ);
         double d1 = (double)(/*Math.sqrt(*/this.entity.width * 2.0F * this.entity.width * 2.0F/*)*/ + entitylivingbase.width);
         --this.delayCounter;
         //TEST
@@ -168,7 +167,7 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
         		entitylivingbase.getDistanceSq(this.x, this.y, this.z) >= 1.0D || this.entity.getRNG().nextFloat() < 0.05F))
         {
             this.x = entitylivingbase.posX;
-            this.y = entitylivingbase.boundingBox.minY;
+            this.y = entitylivingbase.getEntityBoundingBox().minY;
             this.z = entitylivingbase.posZ;
             this.delayCounter = failedPathFindingPenalty + 4 + this.entity.getRNG().nextInt(7);
 
@@ -201,20 +200,20 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
             boolean pathResult = false;
             
             if (useLunging) {
-	            double curSpeed = entity.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
+	            double curSpeed = entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue();
 	            
 	            if (d0 <= lungeDist * lungeDist && curSpeed < EventHandlerForge.speedCap) {
-	            	if (this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).getModifier(lungeSpeedUUID) == null) {
-	            		this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).applyModifier(this.lungeSpeedModifier);
+	            	if (this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED).getModifier(lungeSpeedUUID) == null) {
+	            		this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED).applyModifier(this.lungeSpeedModifier);
 	            	}
 	            } else {
-	            	if (this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).getModifier(lungeSpeedUUID) != null) {
-	            		this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).removeModifier(this.lungeSpeedModifier);
+	            	if (this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED).getModifier(lungeSpeedUUID) != null) {
+	            		this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED).removeModifier(this.lungeSpeedModifier);
 	            	}
 	            }
             }
             
-            if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
+            if (entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.LAVA)) {
             	
 	            //System.out.println(this.entity.getEntityId() + " pathing to: " + entitylivingbase);
 	            pathResult = this.entity.getNavigator().tryMoveToEntityLiving(entitylivingbase, this.speedTowardsTarget);
@@ -231,7 +230,7 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
         
         //counter attack leap
         if (useLeapAttack) {
-	        if (this.entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.lava)) {
+	        if (this.entity.onGround || entity.isInWater() || entity.isInsideOfMaterial(Material.LAVA)) {
 	        	leapAttacking = false;
 	        	//if (wasInAir) {
 	        		
@@ -250,8 +249,8 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
 		        		        this.entity.motionY = 0.4D;
 		        		        
 		        		        //extra vertical
-		        		        if (this.entity.boundingBox.minY < entitylivingbase.boundingBox.minY) {
-		        		        	double extraY = Math.min(5D, entitylivingbase.boundingBox.minY - this.entity.boundingBox.minY);
+		        		        if (this.entity.getEntityBoundingBox().minY < entitylivingbase.getEntityBoundingBox().minY) {
+		        		        	double extraY = Math.min(5D, entitylivingbase.getEntityBoundingBox().minY - this.entity.getEntityBoundingBox().minY);
 		        		        	this.entity.motionY += 0.1D * extraY;
 		        		        }
 		        		        
@@ -280,20 +279,20 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
         {
             this.attackTick = 20;
 
-            if (this.entity.getHeldItem() != null)
+            if (this.entity.getHeldItemMainhand() != null)
             {
-                this.entity.swingItem();
+                this.entity.swingArm(EnumHand.MAIN_HAND);;
             }
             
             this.entity.attackEntityAsMob(entitylivingbase);
             
             if (leapAttacking && ConfigHWMonsters.counterAttackLeapExtraDamageMultiplier > 0) {
-            	double extraArmorPiercingDamage = this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.attackDamage).getAttributeValue();
+            	double extraArmorPiercingDamage = this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
                 extraArmorPiercingDamage *= ConfigHWMonsters.counterAttackLeapExtraDamageMultiplier;
-                if (this.worldObj.difficultySetting == EnumDifficulty.EASY)
+                if (this.worldObj.getDifficulty() == EnumDifficulty.EASY)
                 {
                 	extraArmorPiercingDamage = extraArmorPiercingDamage / 2.0F + 1.0F;
-                } else if (this.worldObj.difficultySetting == EnumDifficulty.HARD)
+                } else if (this.worldObj.getDifficulty() == EnumDifficulty.HARD)
                 {
                 	extraArmorPiercingDamage = extraArmorPiercingDamage * 3.0F / 2.0F;
                 }

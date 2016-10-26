@@ -7,9 +7,9 @@ import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAITasks.EntityAITaskEntry;
 import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
-import CoroPets.ai.ITaskInitializer;
+import CoroUtil.ai.ITaskInitializer;
 import CoroUtil.util.Vec3;
 
 public class BehaviorModifier {
@@ -30,7 +30,7 @@ public class BehaviorModifier {
 	public static void enhanceZombies(World parWorld, Vec3 parPos, Class[] taskToInject, int priorityOfTask, int modifyRange, float chanceToEnhance) {
 		
 		
-		AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(parPos.xCoord, parPos.yCoord, parPos.zCoord, parPos.xCoord, parPos.yCoord, parPos.zCoord);
+		AxisAlignedBB aabb = new AxisAlignedBB(parPos.xCoord, parPos.yCoord, parPos.zCoord, parPos.xCoord, parPos.yCoord, parPos.zCoord);
 		aabb = aabb.expand(modifyRange, modifyRange, modifyRange);
 		List list = parWorld.getEntitiesWithinAABB(EntityZombie.class, aabb);
 		
