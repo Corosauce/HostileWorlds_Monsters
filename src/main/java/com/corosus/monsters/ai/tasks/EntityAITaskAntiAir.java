@@ -26,9 +26,9 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
     private EntityPlayer targetLastTracked = null;
     
     private int leapDelayCur = 0;
-    private int leapDelayRate = 40;
+    //private int leapDelayRate = 40;
     
-    private boolean autoAttackTest = true;
+    private boolean autoAttackTest = false;
     private boolean tryingToGrab = false;
     private boolean grabLock = false;
     
@@ -118,7 +118,7 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 	    		
 	    		
 	    		long time = targetLastTracked.getEntityData().getLong(DynamicDifficulty.dataPlayerDetectInAirTime);
-	    		boolean inAirLongEnough = time > leapDelayRate;
+	    		boolean inAirLongEnough = time > ConfigHWMonsters.antiAirLeapRate;
 	    		
 	    		if (ConfigHWMonsters.antiAirType == 0) {
 	    		
@@ -147,7 +147,7 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 			    				
 			    				//entity.onGround = false;
 			    				
-			    				leapDelayCur = leapDelayRate;
+			    				leapDelayCur = ConfigHWMonsters.antiAirLeapRate;
 			    				
 			    				tryingToGrab = true;
 			    			}
@@ -172,17 +172,22 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 		    		}
 	    		} else if (ConfigHWMonsters.antiAirType == 1) {
 	    			if (inAirLongEnough) {
-			    		targetLastTracked.addPotionEffect(new PotionEffect(Potion.weakness.getId(), 100, 2, false));
-			    		targetLastTracked.addPotionEffect(new PotionEffect(Potion.moveSlowdown.getId(), 100, 2, false));
-			    		targetLastTracked.addPotionEffect(new PotionEffect(Potion.hunger.getId(), 100, 2, false));
+	    				if (ConfigHWMonsters.antiAirApplyPotions) {
+				    		targetLastTracked.addPotionEffect(new PotionEffect(Potion.weakness.getId(), 100, 2, false));
+				    		targetLastTracked.addPotionEffect(new PotionEffect(Potion.moveSlowdown.getId(), 100, 2, false));
+				    		targetLastTracked.addPotionEffect(new PotionEffect(Potion.hunger.getId(), 100, 2, false));
+	    				}
 			    		
 			    		if (targetLastTracked instanceof EntityPlayerMP) {
 			    			EntityPlayerMP entMP = (EntityPlayerMP) targetLastTracked;
 			    			long lastPullTime = targetLastTracked.getEntityData().getLong(dataPlayerLastPullDownTick);
 			    			if (entMP.worldObj.getTotalWorldTime() != lastPullTime) {
 			    				targetLastTracked.getEntityData().setLong(dataPlayerLastPullDownTick, entMP.worldObj.getTotalWorldTime());
-				    			//entMP.playerNetServerHandler.sendPacket(new S12PacketEntityVelocity(targetLastTracked.getEntityId(), 0, -0.4D, 0));
-				    			CoroAI.eventChannel.sendTo(PacketHelper.getPacketForRelativeMotion(entMP, 0, -0.4D, 0), entMP);
+			    				if (ConfigHWMonsters.antiAirUseRelativeMotion) {
+			    					CoroAI.eventChannel.sendTo(PacketHelper.getPacketForRelativeMotion(entMP, 0, ConfigHWMonsters.antiAirPullDownRate, 0), entMP);
+			    				} else {
+			    					entMP.playerNetServerHandler.sendPacket(new S12PacketEntityVelocity(targetLastTracked.getEntityId(), 0, ConfigHWMonsters.antiAirPullDownRate, 0));
+			    				}
 			    			}
 			    		}
 	    			}

@@ -78,8 +78,14 @@ public class EventHandlerForge {
 				EntityPlayer player = DynamicDifficulty.getBestPlayerForArea(world, new BlockCoord(ent));
 				
 				if (player != null) {
-					if (ConfigHWMonsters.blackListPlayers.contains(CoroUtilEntity.getName(player))) {
-						return;
+					if (ConfigHWMonsters.useBlacklistAsWhitelist) {
+						if (!ConfigHWMonsters.blackListPlayers.contains(CoroUtilEntity.getName(player))) {
+							return;
+						}
+					} else {
+						if (ConfigHWMonsters.blackListPlayers.contains(CoroUtilEntity.getName(player))) {
+							return;
+						}
 					}
 					
 					if (ent instanceof EntityZombie) {

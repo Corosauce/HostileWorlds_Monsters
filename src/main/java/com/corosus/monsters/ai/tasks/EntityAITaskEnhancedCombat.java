@@ -287,9 +287,9 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
             
             this.entity.attackEntityAsMob(entitylivingbase);
             
-            if (leapAttacking) {
+            if (leapAttacking && ConfigHWMonsters.counterAttackLeapExtraDamageMultiplier > 0) {
             	double extraArmorPiercingDamage = this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.attackDamage).getAttributeValue();
-                extraArmorPiercingDamage *= 0.5D;
+                extraArmorPiercingDamage *= ConfigHWMonsters.counterAttackLeapExtraDamageMultiplier;
                 if (this.worldObj.difficultySetting == EnumDifficulty.EASY)
                 {
                 	extraArmorPiercingDamage = extraArmorPiercingDamage / 2.0F + 1.0F;
@@ -299,7 +299,11 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
                 }
             	//entitylivingbase.attackEntityFrom();
                 //entitylivingbase.damageEntity(DamageSource.magic, (float) extraArmorPiercingDamage);
-                entitylivingbase.setHealth(entitylivingbase.getHealth() - (float) extraArmorPiercingDamage);
+                float newHealth = entitylivingbase.getHealth() - (float) extraArmorPiercingDamage;
+                if (newHealth < 2) {
+                	newHealth = 2;
+                }
+                entitylivingbase.setHealth(newHealth);
                 //System.out.println("hit!: " + extraArmorPiercingDamage);
                 
             }

@@ -13,9 +13,12 @@ public class ConfigHWMonsters implements IConfigCategory {
 	@ConfigComment("0 = leap and pull down, 1 = super evil effects and force pull down")
 	public static int antiAirType = 0;
 	
-	public static double antiAirV2PullDownRate = 0.2D;
-	
 	public static double antiAirLeapSpeed = 0.15D;
+	
+	public static double antiAirPullDownRate = -0.4D;
+	public static boolean antiAirUseRelativeMotion = true;
+	
+	public static boolean antiAirApplyPotions = true;
 	
 	public static int antiAirLeapRate = 40;
 	
@@ -46,8 +49,10 @@ public class ConfigHWMonsters implements IConfigCategory {
 	public static long counterAttackDetectThreshold = 15;
 	public static long counterAttackReuseDelay = 30;
 	public static double counterAttackLeapSpeed = 0.8D;
+	public static double counterAttackLeapExtraDamageMultiplier = 0.5D;
 	
 	public static String blackListPlayers = "";
+	public static boolean useBlacklistAsWhitelist = false;
 	
 
 	
