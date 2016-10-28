@@ -3,10 +3,13 @@ package com.corosus.monsters.ai.tasks;
 import java.util.List;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
+import net.minecraft.init.PotionTypes;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -90,9 +93,19 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
      */
     public void resetTask()
     {
-    	if (entity.riddenByEntity instanceof EntityPlayer) {
+    	for (Entity ent : entity.getRecursivePassengers()) {
+    		if (ent instanceof EntityPlayer) {
+    			//entity.dismountEntity(entityIn);
+    			//since removePassenger is private i guess just remove all...
+    			//oh wait
+    			ent.dismountRidingEntity();
+    			//entity.removePassengers();
+    			//break;
+    		}
+    	}
+    	/*if (entity.riddenByEntity instanceof EntityPlayer) {
 			entity.riddenByEntity.mountEntity(null);
-		}
+		}*/
     	//System.out.println("reset!");
     }
 
@@ -156,7 +169,8 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 			    			
 			    			if (dist < 2 || grabLock) {
 			    				if (targetLastTracked.getRidingEntity() == null) { 
-				    				targetLastTracked.mountEntity(entity);
+			    					targetLastTracked.startRiding(entity, true);
+				    				//targetLastTracked.mountEntity(entity);
 				    				grabLock = true;
 				    				if (autoAttackTest && targetLastTracked.capabilities.isFlying) {
 				    					targetLastTracked.capabilities.isFlying = false;
@@ -170,9 +184,9 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 	    		} else if (ConfigHWMonsters.antiAirType == 1) {
 	    			if (inAirLongEnough) {
 	    				if (ConfigHWMonsters.antiAirApplyPotions) {
-				    		targetLastTracked.addPotionEffect(new PotionEffect(Potion.weakness.getId(), 100, 2, false));
-				    		targetLastTracked.addPotionEffect(new PotionEffect(Potion.moveSlowdown.getId(), 100, 2, false));
-				    		targetLastTracked.addPotionEffect(new PotionEffect(Potion.hunger.getId(), 100, 2, false));
+				    		targetLastTracked.addPotionEffect(new PotionEffect(MobEffects.WEAKNESS, 100, 2));
+				    		targetLastTracked.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 100, 2));
+				    		targetLastTracked.addPotionEffect(new PotionEffect(MobEffects.HUNGER, 100, 2));
 	    				}
 			    		
 			    		if (targetLastTracked instanceof EntityPlayerMP) {
@@ -198,9 +212,14 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 		    		leapDelayCur--;
 	    		}
 	    		grabLock = false;
-		    	if (entity.riddenByEntity instanceof EntityPlayer) {
+	    		for (Entity ent : entity.getRecursivePassengers()) {
+	        		if (ent instanceof EntityPlayer) {
+	        			ent.dismountRidingEntity();
+	        		}
+	        	}
+		    	/*if (entity.riddenByEntity instanceof EntityPlayer) {
 					entity.riddenByEntity.mountEntity(null);
-				}
+				}*/
 	    	}
     	}
     }

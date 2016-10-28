@@ -3,6 +3,7 @@ package com.corosus.monsters;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.EntityAIZombieAttack;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.monster.IMob;
@@ -92,7 +93,8 @@ public class EventHandlerForge {
 						}*/
 						
 						//note, there are 2 instances of attack on collide, we are targetting the first one that is for player
-						BehaviorModifier.replaceTaskIfMissing(ent, EntityAIAttackOnCollide.class, tasksToInject, taskPriorities);
+						//TODO: 1.10.2 verify going from EntityAIAttackOnCollide to EntityAIZombieAttack doesnt break things
+						BehaviorModifier.replaceTaskIfMissing(ent, EntityAIZombieAttack.class, tasksToInject, taskPriorities);
 					}
 					
 					if (!ent.getEntityData().getBoolean(BehaviorModifier.dataEntityEnhanced)) {

@@ -10,8 +10,10 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
@@ -35,7 +37,7 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
     /** When true, the mob will continue chasing its target, even if it can't find a path to them right now. */
     boolean longMemory;
     /** The PathEntity of our entity. */
-    PathEntity entityPathEntity;
+    Path entityPathEntity;
     Class classTarget;
     private int delayCounter;
     private double x;
@@ -121,7 +123,7 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
     public boolean continueExecuting()
     {
         EntityLivingBase entitylivingbase = this.entity.getAttackTarget();
-        return entitylivingbase == null ? false : (!entitylivingbase.isEntityAlive() ? false : (!this.longMemory ? !this.entity.getNavigator().noPath() : this.entity.isWithinHomeDistance(MathHelper.floor_double(entitylivingbase.posX), MathHelper.floor_double(entitylivingbase.posY), MathHelper.floor_double(entitylivingbase.posZ))));
+        return entitylivingbase == null ? false : (!entitylivingbase.isEntityAlive() ? false : (!this.longMemory ? !this.entity.getNavigator().noPath() : this.entity.isWithinHomeDistanceFromPosition(new BlockPos(MathHelper.floor_double(entitylivingbase.posX), MathHelper.floor_double(entitylivingbase.posY), MathHelper.floor_double(entitylivingbase.posZ)))));
     }
 
     /**
