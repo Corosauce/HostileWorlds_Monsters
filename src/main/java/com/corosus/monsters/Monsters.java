@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 
 import com.corosus.monsters.config.ConfigHWMonsters;
 
-@Mod(modid = "hw_monsters", name="HW_Monsters", version="v0.1", acceptableRemoteVersions="*")
+@Mod(modid = "hw_monsters", name="HW_Monsters", version="v0.1", acceptableRemoteVersions="*", dependencies="required-after:coroutil")
 public class Monsters {
 	
 	@Mod.Instance( value = "hw_monsters" )
