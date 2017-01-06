@@ -53,15 +53,23 @@ public class ConfigHWMonsters implements IConfigCategory {
 	
 	public static String blackListPlayers = "";
 	public static boolean useBlacklistAsWhitelist = false;
-	
 
-	
-	
-	
+
+
+
+	@Override
+	public String getName() {
+		return "Misc";
+	}
+
+	@Override
+	public String getRegistryName() {
+		return "HWMonstersMisc";
+	}
 	
 	@Override
 	public String getConfigFileName() {
-		return "HW_Monsters" + File.separator + "Misc";
+		return "HW_Monsters" + File.separator + getName();
 	}
 
 	@Override

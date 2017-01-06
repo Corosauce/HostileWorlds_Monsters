@@ -22,7 +22,7 @@ public class Monsters {
 	@Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-		ConfigMod.addConfigFile(event, "HWMonstersMisc", new ConfigHWMonsters());
+		ConfigMod.addConfigFile(event, new ConfigHWMonsters());
     }
     
 	@Mod.EventHandler

@@ -14,7 +14,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.AxisAlignedBB;
 import CoroUtil.ai.ITaskInitializer;
-import CoroUtil.forge.CoroAI;
+import CoroUtil.forge.CoroUtil;
 import CoroUtil.packet.PacketHelper;
 import CoroUtil.world.player.DynamicDifficulty;
 
@@ -195,7 +195,7 @@ public class EntityAITaskAntiAir extends EntityAIBase implements ITaskInitialize
 			    			if (entMP.worldObj.getTotalWorldTime() != lastPullTime) {
 			    				targetLastTracked.getEntityData().setLong(dataPlayerLastPullDownTick, entMP.worldObj.getTotalWorldTime());
 			    				if (ConfigHWMonsters.antiAirUseRelativeMotion) {
-			    					CoroAI.eventChannel.sendTo(PacketHelper.getPacketForRelativeMotion(entMP, 0, ConfigHWMonsters.antiAirPullDownRate, 0), entMP);
+			    					CoroUtil.eventChannel.sendTo(PacketHelper.getPacketForRelativeMotion(entMP, 0, ConfigHWMonsters.antiAirPullDownRate, 0), entMP);
 			    				} else {
 			    					//entMP.playerNetServerHandler.sendPacket(new S12PacketEntityVelocity(targetLastTracked.getEntityId(), 0, ConfigHWMonsters.antiAirPullDownRate, 0));
 			    				}
