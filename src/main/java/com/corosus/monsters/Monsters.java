@@ -4,6 +4,7 @@ import modconfig.ConfigMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
@@ -12,12 +13,15 @@ import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 
 import com.corosus.monsters.config.ConfigHWMonsters;
 
-@Mod(modid = "hw_monsters", name="HW_Monsters", version="v0.1", acceptableRemoteVersions="*", dependencies="required-after:coroutil")
+@Mod(modid = "hw_monsters", name="hw_monsters", version="v0.1", acceptableRemoteVersions="*", dependencies="required-after:coroutil")
 public class Monsters {
 	
 	@Mod.Instance( value = "hw_monsters" )
 	public static Monsters instance;
 	public static String modID = "hw_monsters";
+
+    @SidedProxy(clientSide = "com.corosus.monsters.ClientProxy", serverSide = "com.corosus.monsters.CommonProxy")
+    public static CommonProxy proxy;
     
 	@Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -30,6 +34,8 @@ public class Monsters {
     {
 		MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
 		FMLCommonHandler.instance().bus().register(new EventHandlerForge());
+
+        proxy.init(this);
     }
     
     @Mod.EventHandler
