@@ -24,10 +24,7 @@ public class BehaviorModifier {
 	//entityid
 	//public static HashMap<Integer, Boolean> aiEnhanced = new HashMap<Integer, Boolean>();
 	
-	public static String dataEntityEnhanced = "CoroAI_HW_Monster_Enhanced";
-	public static String dataEntityEnhanceTried = "CoroAI_HW_Monster_EnhanceTried";
-	
-	public static void enhanceZombies(World parWorld, Vec3 parPos, Class[] taskToInject, int priorityOfTask, int modifyRange, float chanceToEnhance) {
+	public static void enhanceZombies(World parWorld, Vec3 parPos, Class[] taskToInject, int priorityOfTask, int modifyRange/*, float chanceToEnhance*/) {
 		
 		
 		AxisAlignedBB aabb = new AxisAlignedBB(parPos.xCoord, parPos.yCoord, parPos.zCoord, parPos.xCoord, parPos.yCoord, parPos.zCoord);
@@ -44,15 +41,15 @@ public class BehaviorModifier {
         	if (ent != null && !ent.isDead) {
         		//if (!aiEnhanced.containsKey(ent.getEntityId())) {
         		//log that we've tried to enhance with chance already, prevent further attempts to avoid stacking the odds per call on this method
-        		if (!ent.getEntityData().getBoolean(dataEntityEnhanceTried)) {
+        		if (!ent.getEntityData().getBoolean(UtilEntityBuffs.dataEntityBuffed_Tried)) {
         			
         			enhanceCountTry++;
+
+        			ent.getEntityData().setBoolean(UtilEntityBuffs.dataEntityBuffed_Tried, true);
         			
-        			ent.getEntityData().setBoolean(dataEntityEnhanceTried, true);
+        			//if (parWorld.rand.nextFloat() < chanceToEnhance) {
         			
-        			if (parWorld.rand.nextFloat() < chanceToEnhance) {
-        			
-	        			if (!ent.getEntityData().getBoolean(dataEntityEnhanced)) {
+	        			if (!ent.getEntityData().getBoolean(UtilEntityBuffs.dataEntityBuffed_AI_CoroAI)) {
 	            			for (Class clazz : taskToInject) {
 	    		        		addTask(ent, clazz, priorityOfTask);
 	            			}
@@ -60,7 +57,7 @@ public class BehaviorModifier {
 	            			enhanceCount++;
 	            			performExtraChanges(ent);
 	            		}
-        			}
+        			//}
         		} else {
         			//System.out.println("already tried to enhance on this entity");
         		}
@@ -140,7 +137,7 @@ public class BehaviorModifier {
 	public static void performExtraChanges(EntityCreature ent) {
 		/*ent.getNavigator().setBreakDoors(false);
 		//((PathNavigateGround)ent.getNavigator()).setBreakDoors(false);
-		ent.getEntityData().setBoolean(dataEntityEnhanced, true);
+		ent.getEntityData().setBoolean(dataEntityBuffed_AI_CoroAI, true);
 		ent.getEntityData().setBoolean("CoroAI_HW_GravelDeath", true);
 		if (ent.getEquipmentInSlot(0) == null) {
 			EventHandlerForge.setEquipment(ent, 0, new ItemStack(Items.iron_pickaxe));

@@ -3,6 +3,7 @@ package com.corosus.monsters.ai.tasks;
 import java.util.Random;
 import java.util.UUID;
 
+import com.corosus.monsters.UtilEntityBuffs;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
@@ -22,7 +23,6 @@ import CoroUtil.entity.data.AttackData;
 import CoroUtil.util.BlockCoord;
 import CoroUtil.world.player.DynamicDifficulty;
 
-import com.corosus.monsters.EventHandlerForge;
 import com.corosus.monsters.config.ConfigHWMonsters;
 
 public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskInitializer
@@ -204,7 +204,7 @@ public class EntityAITaskEnhancedCombat extends EntityAIBase implements ITaskIni
             if (useLunging) {
 	            double curSpeed = entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue();
 	            
-	            if (d0 <= lungeDist * lungeDist && curSpeed < EventHandlerForge.speedCap) {
+	            if (d0 <= lungeDist * lungeDist && curSpeed < UtilEntityBuffs.speedCap) {
 	            	if (this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED).getModifier(lungeSpeedUUID) == null) {
 	            		this.entity.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED).applyModifier(this.lungeSpeedModifier);
 	            	}

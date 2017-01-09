@@ -1,11 +1,17 @@
 package com.corosus.monsters.block;
 
 import CoroUtil.util.CoroUtilCrossMod;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityZombie;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+
+import java.util.List;
 
 public class TileEntityTotem extends TileEntity implements ITickable
 {
@@ -16,15 +22,24 @@ public class TileEntityTotem extends TileEntity implements ITickable
     	if (!worldObj.isRemote) {
     		
     		if (worldObj.getTotalWorldTime() % 40 == 0) {
-                EntityZombie ent = new EntityZombie(getWorld());
-                ent.setPosition(this.getPos().getX() + 0.5D, this.getPos().getY() + 1.5D, this.getPos().getZ() + 0.5D);
-                getWorld().spawnEntityInWorld(ent);
-                ent.onInitialSpawn(worldObj.getDifficultyForLocation(getPos()), null);
-                String listMods = "";
-                for (String mod : CoroUtilCrossMod.listModifiers) {
-                    listMods += mod + " ";
+                BlockPos pos = getPos();
+                EntityPlayer player = worldObj.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 30, false);
+                if (player != null) {
+                    List<EntityLiving> listEnts = getWorld().getEntitiesWithinAABB(EntityLiving.class, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ()).expand(16, 8, 16));
+                    if (listEnts.size() < 2) {
+                        EntityZombie ent = new EntityZombie(getWorld());
+                        ent.setPosition(this.getPos().getX() + 0.5D, this.getPos().getY() + 1.5D, this.getPos().getZ() + 0.5D);
+                        getWorld().spawnEntityInWorld(ent);
+                        ent.onInitialSpawn(worldObj.getDifficultyForLocation(getPos()), null);
+                        String listMods = "";
+                        for (String mod : CoroUtilCrossMod.listModifiers) {
+                            listMods += mod + " ";
+                        }
+                        //CoroUtilCrossMod.infernalMobs_AddModifiers((EntityLivingBase) ent, listMods);
+                    } else {
+                        System.out.println("ents around: " + listEnts.size());
+                    }
                 }
-                CoroUtilCrossMod.infernalMobs_AddModifiers((EntityLivingBase)ent, listMods);
     		}
     	}
     }
