@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 
-import com.corosus.monsters.config.ConfigHWMonsters;
+import CoroUtil.config.ConfigHWMonsters;
 
 @Mod(modid = "hw_monsters", name="hw_monsters", version="v0.1", acceptableRemoteVersions="*", dependencies="required-after:coroutil")
 public class Monsters {
@@ -26,7 +26,7 @@ public class Monsters {
 	@Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-		ConfigMod.addConfigFile(event, new ConfigHWMonsters());
+
     }
     
 	@Mod.EventHandler

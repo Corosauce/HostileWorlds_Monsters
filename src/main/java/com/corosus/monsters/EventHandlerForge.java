@@ -1,5 +1,6 @@
 package com.corosus.monsters;
 
+import CoroUtil.difficulty.UtilEntityBuffs;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.monster.IMob;
@@ -18,7 +19,7 @@ import CoroUtil.util.BlockCoord;
 import CoroUtil.util.CoroUtilEntity;
 import CoroUtil.world.player.DynamicDifficulty;
 
-import com.corosus.monsters.config.ConfigHWMonsters;
+import CoroUtil.config.ConfigHWMonsters;
 
 public class EventHandlerForge {
 	
