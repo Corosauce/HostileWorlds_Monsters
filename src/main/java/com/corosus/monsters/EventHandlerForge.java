@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import CoroUtil.util.BlockCoord;
 import CoroUtil.util.CoroUtilEntity;
-import CoroUtil.world.player.DynamicDifficulty;
+import CoroUtil.difficulty.DynamicDifficulty;
 
 import CoroUtil.config.ConfigHWMonsters;
 
@@ -77,7 +77,8 @@ public class EventHandlerForge {
 						}
 					}
 
-					UtilEntityBuffs.buffGeneric(world, ent, player);
+					//UtilEntityBuffs.buffGeneric(world, ent, player);
+					UtilEntityBuffs.buff_RollDice(world, ent, player);
 					
 				}
 				
