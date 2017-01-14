@@ -1,6 +1,11 @@
 package com.corosus.monsters.block;
 
+import CoroUtil.difficulty.DynamicDifficulty;
+import CoroUtil.util.BlockCoord;
 import CoroUtil.util.CoroUtilCrossMod;
+import CoroUtil.world.WorldDirector;
+import CoroUtil.world.WorldDirectorManager;
+import CoroUtil.world.location.ISimulationTickable;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityZombie;
@@ -16,6 +21,8 @@ import java.util.List;
 public class TileEntityTotem extends TileEntity implements ITickable
 {
 
+    public ISimulationTickable buffZone = null;
+
 	@Override
     public void update()
     {
@@ -23,7 +30,24 @@ public class TileEntityTotem extends TileEntity implements ITickable
     		
     		if (worldObj.getTotalWorldTime() % 40 == 0) {
                 BlockPos pos = getPos();
-                EntityPlayer player = worldObj.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 30, false);
+
+                if (buffZone == null) {
+                    WorldDirector wd = WorldDirectorManager.instance().getCoroUtilWorldDirector(this.getWorld());
+                    if (wd != null) {
+                        ISimulationTickable zone = wd.getTickingSimulationByLocation(new BlockCoord(this.getPos()));
+                        if (zone == null) {
+                            buffZone = DynamicDifficulty.buffLocation(this.getWorld(), new BlockCoord(this.getPos()), 32, 2);
+
+                            System.out.println("created new buff zone");
+                        } else {
+                            buffZone = zone;
+
+                            System.out.println("restored buff zone");
+                        }
+                    }
+                }
+
+                /*EntityPlayer player = worldObj.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 30, false);
                 if (player != null) {
                     List<EntityLiving> listEnts = getWorld().getEntitiesWithinAABB(EntityLiving.class, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ()).expand(16, 8, 16));
                     if (listEnts.size() < 2) {
@@ -39,7 +63,7 @@ public class TileEntityTotem extends TileEntity implements ITickable
                     } else {
                         System.out.println("ents around: " + listEnts.size());
                     }
-                }
+                }*/
     		}
     	}
     }
@@ -59,5 +83,20 @@ public class TileEntityTotem extends TileEntity implements ITickable
     {
         super.readFromNBT(var1);
 
+    }
+
+    @Override
+    public void invalidate() {
+        if (!this.getWorld().isRemote) {
+            WorldDirector wd = WorldDirectorManager.instance().getCoroUtilWorldDirector(this.getWorld());
+            if (wd != null) {
+                ISimulationTickable zone = wd.getTickingSimulationByLocation(new BlockCoord(this.getPos()));
+                if (zone != null) {
+                    wd.removeTickingLocation(zone);
+                    System.out.println("removed buff zone");
+                }
+            }
+        }
+        super.invalidate();
     }
 }
