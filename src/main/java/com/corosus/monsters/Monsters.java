@@ -1,5 +1,6 @@
 package com.corosus.monsters;
 
+import com.corosus.monsters.world.TotemGen;
 import modconfig.ConfigMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -12,6 +13,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 
 import CoroUtil.config.ConfigHWMonsters;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 @Mod(modid = "hw_monsters", name="hw_monsters", version="v0.1", acceptableRemoteVersions="*", dependencies="required-after:coroutil")
 public class Monsters {
@@ -36,6 +38,10 @@ public class Monsters {
 		FMLCommonHandler.instance().bus().register(new EventHandlerForge());
 
         proxy.init(this);
+
+        if (ConfigHWMonsters.genTotems) {
+            GameRegistry.registerWorldGenerator(new TotemGen(), 1000);
+        }
     }
     
     @Mod.EventHandler
