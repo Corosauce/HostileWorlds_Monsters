@@ -21,11 +21,7 @@ public class ClientProxy extends CommonProxy
     public void init(Monsters pMod)
     {
         super.init(pMod);
-        
-        
 
-        
-        
     }
 
     @Override

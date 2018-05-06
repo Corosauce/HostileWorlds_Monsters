@@ -30,7 +30,6 @@ public class CommonProxy implements IGuiHandler
     public void init(Monsters pMod)
     {
 
-        //addBlock((new BlockTotem()), TileEntityTotem.class, totem_name);
     }
 
     @Override
@@ -47,15 +46,6 @@ public class CommonProxy implements IGuiHandler
         return null;
     }
 
-    /*public void addBlock(Block block, Class tEnt, String unlocalizedName) {
-        addBlock(block, tEnt, unlocalizedName, true);
-    }
-
-    public void addBlock(Block block, Class tEnt, String unlocalizedName, boolean creativeTab) {
-        addBlock(block, unlocalizedName, creativeTab);
-        GameRegistry.registerTileEntity(tEnt, getNameDomained(unlocalizedName));
-    }*/
-
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         Monsters.proxy.addBlock(event, new BlockTotem(), TileEntityTotem.class, totem_name);
@@ -65,18 +55,6 @@ public class CommonProxy implements IGuiHandler
     public static void registerItems(RegistryEvent.Register<Item> event) {
         Monsters.proxy.addItemBlock(event, new ItemBlock(blockTotem).setRegistryName(blockTotem.getRegistryName()));
     }
-
-    /*public void addBlock(Block parBlock, String unlocalizedName) {
-        addBlock(parBlock, unlocalizedName, true);
-    }
-
-    public void addBlock(Block parBlock, String unlocalizedName, boolean creativeTab) {
-        //GameRegistry.registerBlock(parBlock, unlocalizedName);
-
-        parBlock.setUnlocalizedName(getNamePrefixed(unlocalizedName));
-
-        parBlock.setCreativeTab(CreativeTabs.MISC);
-    }*/
 
     public String getNameUnlocalized(String name) {
         return Monsters.modID + "." + name;
@@ -100,8 +78,6 @@ public class CommonProxy implements IGuiHandler
     }
 
     public void addBlock(RegistryEvent.Register<Block> event, Block parBlock, String unlocalizedName, boolean creativeTab) {
-        //GameRegistry.registerBlock(parBlock, unlocalizedName);
-
         parBlock.setUnlocalizedName(getNameUnlocalized(unlocalizedName));
         parBlock.setRegistryName(getNameDomained(unlocalizedName));
 
@@ -118,19 +94,12 @@ public class CommonProxy implements IGuiHandler
 
     public void addItem(RegistryEvent.Register<Item> event, Item item, String name) {
         item.setUnlocalizedName(getNameUnlocalized(name));
-        //item.setRegistryName(new ResourceLocation(Weather.modID, name));
         item.setRegistryName(getNameDomained(name));
 
         item.setCreativeTab(CreativeTabs.MISC);
 
         if (event != null) {
             event.getRegistry().register(item);
-        } else {
-            //GameRegistry.register(item);
         }
-
-        //registerItemVariantModel(item, name, 0);
-
-        //return item;
     }
 }
