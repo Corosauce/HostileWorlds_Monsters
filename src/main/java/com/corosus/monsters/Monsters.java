@@ -20,7 +20,7 @@ public class Monsters {
 	
 	@Mod.Instance( value = "hw_monsters" )
 	public static Monsters instance;
-	public static String modID = "hw_monsters";
+	public static final String modID = "hw_monsters";
 
     @SidedProxy(clientSide = "com.corosus.monsters.ClientProxy", serverSide = "com.corosus.monsters.CommonProxy")
     public static CommonProxy proxy;

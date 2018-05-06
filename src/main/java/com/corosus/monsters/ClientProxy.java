@@ -1,10 +1,10 @@
 package com.corosus.monsters;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -29,13 +29,23 @@ public class ClientProxy extends CommonProxy
     }
 
     @Override
-    public void addBlock(Block parBlock, String unlocalizedName, boolean creativeTab) {
-        super.addBlock(parBlock, unlocalizedName, creativeTab);
+    public void addItem(RegistryEvent.Register<Item> event, Item item, String name) {
+        super.addItem(event, item, name);
 
-        registerItem(Item.getItemFromBlock(parBlock), 0, new ModelResourceLocation(Monsters.modID + ":" + unlocalizedName, "inventory"));
+        ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Monsters.modID + ":" + name, "inventory"));
     }
 
-    public void registerItem(Item item, int meta, ModelResourceLocation location) {
-        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, location);
+    @Override
+    public void addBlock(RegistryEvent.Register<Block> event, Block parBlock, String unlocalizedName, boolean creativeTab) {
+        super.addBlock(event, parBlock, unlocalizedName, creativeTab);
+
+        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(parBlock), 0, new ModelResourceLocation(Monsters.modID + ":" + unlocalizedName, "inventory"));
+    }
+
+    @Override
+    public void addItemBlock(RegistryEvent.Register<Item> event, Item item) {
+        super.addItemBlock(event, item);
+
+        ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
     }
 }

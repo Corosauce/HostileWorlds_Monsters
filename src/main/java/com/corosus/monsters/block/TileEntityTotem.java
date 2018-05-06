@@ -26,9 +26,9 @@ public class TileEntityTotem extends TileEntity implements ITickable
 	@Override
     public void update()
     {
-    	if (!worldObj.isRemote) {
+    	if (!world.isRemote) {
     		
-    		if (worldObj.getTotalWorldTime() % 40 == 0) {
+    		if (world.getTotalWorldTime() % 40 == 0) {
                 BlockPos pos = getPos();
 
                 if (buffZone == null) {
@@ -47,14 +47,14 @@ public class TileEntityTotem extends TileEntity implements ITickable
                     }
                 }
 
-                /*EntityPlayer player = worldObj.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 30, false);
+                /*EntityPlayer player = worl.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 30, false);
                 if (player != null) {
                     List<EntityLiving> listEnts = getWorld().getEntitiesWithinAABB(EntityLiving.class, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ()).expand(16, 8, 16));
                     if (listEnts.size() < 2) {
                         EntityZombie ent = new EntityZombie(getWorld());
                         ent.setPosition(this.getPos().getX() + 0.5D, this.getPos().getY() + 1.5D, this.getPos().getZ() + 0.5D);
                         getWorld().spawnEntityInWorld(ent);
-                        ent.onInitialSpawn(worldObj.getDifficultyForLocation(getPos()), null);
+                        ent.onInitialSpawn(worl.getDifficultyForLocation(getPos()), null);
                         String listMods = "";
                         for (String mod : CoroUtilCrossMod.listModifiers) {
                             listMods += mod + " ";

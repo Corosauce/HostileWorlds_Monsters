@@ -55,7 +55,7 @@ public class EventHandlerForge {
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityJoinWorld(EntityJoinWorldEvent event) {
-		if (event.getEntity().worldObj.isRemote) return;
+		if (event.getEntity().world.isRemote) return;
 		if (event.getEntity() instanceof IMob) {
 			if (event.getEntity() instanceof EntityCreature) {
 				World world = event.getWorld();
@@ -89,10 +89,10 @@ public class EventHandlerForge {
 	
 	@SubscribeEvent(priority = EventPriority.HIGH)
     public void onLivingHurt(LivingHurtEvent event) {
-		if (event.getEntity().worldObj.isRemote) return;
+		if (event.getEntity().world.isRemote) return;
 		if (event.getEntity() instanceof IMob) {
 			if (event.getEntity() instanceof EntityLiving) {
-				World world = event.getEntity().worldObj;
+				World world = event.getEntity().world;
 				EntityLiving ent = (EntityLiving) event.getEntity();
 				
 				if (event.getSource() instanceof EntityDamageSource || event.getSource() instanceof EntityDamageSourceIndirect) {
