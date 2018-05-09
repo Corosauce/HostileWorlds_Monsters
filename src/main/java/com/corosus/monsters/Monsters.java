@@ -1,7 +1,7 @@
 package com.corosus.monsters;
 
+import CoroUtil.forge.CoroUtil;
 import com.corosus.monsters.world.TotemGen;
-import modconfig.ConfigMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -20,7 +20,7 @@ public class Monsters {
 	
 	@Mod.Instance( value = "hw_monsters" )
 	public static Monsters instance;
-	public static final String modID = "hw_monsters";
+	public static final String modID = CoroUtil.modID_HWMonsters;
 
     @SidedProxy(clientSide = "com.corosus.monsters.ClientProxy", serverSide = "com.corosus.monsters.CommonProxy")
     public static CommonProxy proxy;
