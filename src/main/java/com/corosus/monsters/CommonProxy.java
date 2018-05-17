@@ -2,16 +2,19 @@ package com.corosus.monsters;
 
 import com.corosus.monsters.block.BlockTotem;
 import com.corosus.monsters.block.TileEntityTotem;
+import com.corosus.monsters.entity.EntityZombiePlayer;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.IGuiHandler;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 @Mod.EventBusSubscriber(modid = Monsters.modID)
@@ -29,7 +32,7 @@ public class CommonProxy implements IGuiHandler
 
     public void init(Monsters pMod)
     {
-
+        addMapping(EntityZombiePlayer.class, "zombie_player", 0, 64, 1, true);
     }
 
     @Override
@@ -101,5 +104,9 @@ public class CommonProxy implements IGuiHandler
         if (event != null) {
             event.getRegistry().register(item);
         }
+    }
+
+    public void addMapping(Class par0Class, String par1Str, int entityId, int distSync, int tickRateSync, boolean syncMotion) {
+        EntityRegistry.registerModEntity(new ResourceLocation(Monsters.modID, par1Str), par0Class, par1Str, entityId, Monsters.instance, distSync, tickRateSync, syncMotion);
     }
 }

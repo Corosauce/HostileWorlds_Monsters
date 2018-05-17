@@ -1,10 +1,18 @@
 package com.corosus.monsters;
 
+import com.corosus.monsters.client.entity.RenderZombiePlayer;
+import com.corosus.monsters.entity.EntityZombiePlayer;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -21,6 +29,9 @@ public class ClientProxy extends CommonProxy
     public void init(Monsters pMod)
     {
         super.init(pMod);
+
+        RenderManager rm = Minecraft.getMinecraft().getRenderManager();
+        addMapping(EntityZombiePlayer.class, new RenderZombiePlayer(rm));
 
     }
 
@@ -43,5 +54,9 @@ public class ClientProxy extends CommonProxy
         super.addItemBlock(event, item);
 
         ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
+    }
+
+    private static void addMapping(Class<? extends Entity> entityClass, Render render) {
+        RenderingRegistry.registerEntityRenderingHandler(entityClass, render);
     }
 }
