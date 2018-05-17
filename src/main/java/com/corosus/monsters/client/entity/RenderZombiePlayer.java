@@ -41,6 +41,12 @@ public class RenderZombiePlayer extends RenderBiped<EntityZombiePlayer> {
     @Override
     protected ResourceLocation getEntityTexture(EntityZombiePlayer entity) {
 
+        /**
+         * First we try to just grab from loaded player infos, but there are scenarios where they could be missing:
+         * - zombie has been alive for a while, player its based on isnt connected after games reloaded etc
+         * - new player flies into area where player its based on isnt at
+         */
+
         //TODO: TEMP, relocate, cache, lookup players properly
         if (entity.playerInfo == null) {
             //GameProfile profile = new GameProfile(UUIDTypeAdapter.fromString("a6484c2f-cd05-460f-81d1-36e92d8f8f9e"), "Cojomax99");
@@ -48,7 +54,7 @@ public class RenderZombiePlayer extends RenderBiped<EntityZombiePlayer> {
             entity.playerInfo = Minecraft.getMinecraft().getConnection().getPlayerInfo(profile.getName());
             if (entity.playerInfo == null) {
                 //TODO: i am misusing this, needs properties map from GameProfile with 'textures' entry etc, explore other options
-                entity.playerInfo = new NetworkPlayerInfo(profile);
+                //entity.playerInfo = new NetworkPlayerInfo(profile);
                 //TODO: add new entry to NetHandlerPlayClient.playerInfoMap ?, or just cache it for our own purposes, might be cleaner for us
 
             }
