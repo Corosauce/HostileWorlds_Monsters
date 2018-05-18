@@ -32,13 +32,15 @@ public class EntityZombiePlayer extends EntityZombie implements IEntityAdditiona
     @Nullable
     @Override
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata) {
-        this.enablePersistence();
 
         //temp
         //GameProfile profile = new GameProfile(UUIDTypeAdapter.fromString("a6484c2f-cd05-460f-81d1-36e92d8f8f9e"), "Cojomax99");
         GameProfile profile = new GameProfile(UUIDTypeAdapter.fromString("ef29f2d6-14e1-4eda-9c53-d4eac41c0062"), "PhoenixfireLune");
         //profile = new GameProfile(UUIDTypeAdapter.fromString("e0bc7f7a-0d68-4e85-bbc4-8bd17e52e9e5"), "Corosus");
         setGameProfile(profile);
+
+        this.setChild(false);
+        this.enablePersistence();
 
         return super.onInitialSpawn(difficulty, livingdata);
     }
