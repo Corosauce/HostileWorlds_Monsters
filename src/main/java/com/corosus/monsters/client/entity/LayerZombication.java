@@ -35,7 +35,12 @@ public class LayerZombication implements LayerRenderer<EntityZombiePlayer>
         GlStateManager.enableLighting();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         Minecraft.getMinecraft().entityRenderer.setupFogColor(true);*/
-        this.endermanRenderer.getMainModel().render(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+        if (endermanRenderer.isSlim(entitylivingbaseIn)) {
+            this.endermanRenderer.modelPlayerThin.render(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+        } else {
+            this.endermanRenderer.getMainModel().render(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+        }
+
         /*Minecraft.getMinecraft().entityRenderer.setupFogColor(false);
         this.endermanRenderer.setLightmap(entitylivingbaseIn);
         GlStateManager.depthMask(true);
