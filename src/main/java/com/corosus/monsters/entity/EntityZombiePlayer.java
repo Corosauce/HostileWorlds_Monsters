@@ -101,6 +101,9 @@ public class EntityZombiePlayer extends EntityZombie implements IEntityAdditiona
                     "sokratis12GR", "SpitefulFox", "srs_bsns", "Tamaized", "techbrew", "TehNut", "TheCodedOne", "TheRealp455w0rd",
                     "tterrag", "Vazkii", "WayofTime", "wiiv", "wiresegal", "Xisuma", "Zidane"};
             profile = new GameProfile(null, names[world.rand.nextInt(names.length-1)]);
+
+            //profile = new GameProfile(null, "Scratch");
+
             //profile = new GameProfile(UUIDTypeAdapter.fromString("a6484c2f-cd05-460f-81d1-36e92d8f8f9e"), "Cojomax99");
             //profile = new GameProfile(null, "Cojomax99");
             //profile = new GameProfile(null, "PhoenixfireLune");

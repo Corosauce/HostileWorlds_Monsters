@@ -135,6 +135,6 @@ public class RenderZombiePlayer extends RenderBiped<EntityZombiePlayer> {
     }
 
     public static void dbg(String str) {
-        //System.out.println(str);
+        System.out.println(str);
     }
 }

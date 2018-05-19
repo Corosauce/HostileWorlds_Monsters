@@ -20,11 +20,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class UtilProfile implements Runnable {
 
     private static UtilProfile instance;
+    private static Thread thread;
 
     public static UtilProfile getInstance() {
         if (instance == null) {
             instance = new UtilProfile();
-            (new Thread(instance, "Player Profile Data Request Thread")).start();
         }
         return instance;
     }
@@ -81,27 +81,47 @@ public class UtilProfile implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            Iterator<GameProfile> it = listProfileRequests.iterator();
-            while (it.hasNext()) {
-                GameProfile profile = it.next();
-                setupProfileData(profile);
-                it.remove();
-            }
+
+        while (!listProfileRequests.isEmpty()) {
+            GameProfile profile = listProfileRequests.remove();
+            setupProfileData(profile);
+
+            //prevent network request throttling trigger
+            //triggered if this isnt used and you spawn 30 zombies with random names
+
             try {
-                Thread.sleep(200);
+                Thread.sleep(300);
             } catch (Exception ex) {
                 ex.printStackTrace();
             } finally {
 
             }
         }
+
+        /*Iterator<GameProfile> it = listProfileRequests.iterator();
+        while (it.hasNext()) {
+            GameProfile profile = it.next();
+            setupProfileData(profile);
+            it.remove();
+        }
+        try {
+            Thread.sleep(200);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+
+        }*/
     }
 
     public void tryToAddProfileToLookupQueue(GameProfile profile) {
         if (!listProfileRequests.contains(profile)) {
             RenderZombiePlayer.dbg("requesting data for: " + profile.getName());
             listProfileRequests.add(profile);
+
+            if (thread == null || thread.getState() == Thread.State.TERMINATED) {
+                thread = new Thread(instance, "Player Profile Data Request Thread");
+                thread.start();
+            }
         }
     }
 
