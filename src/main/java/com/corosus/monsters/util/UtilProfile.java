@@ -29,8 +29,6 @@ public class UtilProfile implements Runnable {
         return instance;
     }
 
-    /*public ConcurrentHashMap<UUID, NetworkPlayerInfo> lookupUUIDToPlayerInfo = new ConcurrentHashMap<>();
-    public ConcurrentHashMap<String, GameProfile> lookupNameToUUID = new ConcurrentHashMap<>();*/
     public ConcurrentLinkedQueue<GameProfile> listProfileRequests = new ConcurrentLinkedQueue<>();
 
     public ConcurrentHashMap<UUID, CachedPlayerData> lookupUUIDToCachedData = new ConcurrentHashMap<>();
@@ -81,29 +79,6 @@ public class UtilProfile implements Runnable {
         }
     }
 
-    /*public class ProfileCallback implements SkinManager.SkinAvailableCallback {
-
-        public GameProfile profile;
-        public EntityZombiePlayer entity;
-
-        public ProfileCallback(EntityZombiePlayer entity, GameProfile profile) {
-            this.entity = entity;
-            this.profile = profile;
-        }
-
-        @Override
-        public void skinAvailable(MinecraftProfileTexture.Type typeIn, ResourceLocation location, MinecraftProfileTexture profileTexture) {
-            String skinType = "default";
-            Minecraft minecraft = Minecraft.getMinecraft();
-            Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> map = minecraft.getSkinManager().loadSkinFromCache(profile);
-            if (map.containsKey(MinecraftProfileTexture.Type.SKIN)) {
-                skinType = map.get(MinecraftProfileTexture.Type.SKIN).getMetadata("model");
-            }
-
-
-        }
-    }*/
-
     @Override
     public void run() {
         while (true) {
@@ -130,33 +105,8 @@ public class UtilProfile implements Runnable {
         }
     }
 
-    /**
-     * Does the networking required to get the players proper skin info and texture
-     *
-     * @param profile
-     */
-    /*public void setupProfileDataOld(GameProfile profile) {
-        if (profile.getId() == null) {
-            profile = TileEntitySkull.updateGameprofile(profile);
-            System.out.println("got updated profile for " + profile.getName() + ", uuid: " + profile.getId());
-        }
-        GameProfile fullProfile = Minecraft.getMinecraft().getSessionService().fillProfileProperties(profile, true);
-        NetworkPlayerInfo playerInfo = new NetworkPlayerInfo(fullProfile);
-        System.out.println("got full profile for " + profile.getName() + ", uuid: " + profile.getId() + ", properties size: " + playerInfo.getGameProfile().getProperties().size());
-        //this makes sure the rest of the network request is done
-        playerInfo.getLocationSkin();
-        lookupUUIDToPlayerInfo.put(profile.getId(), playerInfo);
-        lookupNameToUUID.put(profile.getName(), profile);
-    }*/
-
     public void setupProfileData(GameProfile profile) {
         try {
-            /*if (profile.getId() == null) {
-                //gets profile uuid from cache if available
-                profile = TileEntitySkull.updateGameprofile(profile);
-                RenderZombiePlayer.dbg("got updated profile for " + profile.getName() + ", uuid: " + profile.getId());
-            }*/
-
             //TileEntitySkull.updateGameprofile can change name to correct casing, this would break lookup
             String originalLookupName = profile.getName();
 
@@ -175,15 +125,14 @@ public class UtilProfile implements Runnable {
                 if (map.containsKey(type)){
                     RenderZombiePlayer.dbg("set temp data to load from gl context");
                     data.setTemp(map.get(type));
-
-                    lookupNameToCachedData.put(originalLookupName, data);
-                    lookupUUIDToCachedData.put(profile.getId(), data);
                 } else {
                     //happens if a bad name is used, eg one with spaces
                     RenderZombiePlayer.dbg("error getting profile texture map data for name " + originalLookupName);
-                    lookupNameToCachedData.put(originalLookupName, data);
-                    lookupUUIDToCachedData.put(profile.getId(), data);
                 }
+
+                //add either way to mark it was tried
+                lookupNameToCachedData.put(originalLookupName, data);
+                lookupUUIDToCachedData.put(profile.getId(), data);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
