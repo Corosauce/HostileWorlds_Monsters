@@ -12,7 +12,11 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderBiped;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -103,6 +107,31 @@ public class RenderZombiePlayer extends RenderBiped<EntityZombiePlayer> {
                 GlStateManager.disableBlendProfile(GlStateManager.Profile.TRANSPARENT_MODEL);
             }
         }
+    }
+
+    @Override
+    protected void applyRotations(EntityZombiePlayer entityLiving, float p_77043_2_, float rotationYaw, float partialTicks)
+    {
+        //GlStateManager.rotate(180.0F - rotationYaw, 0.0F, 1.0F, 0.0F);
+
+        if (entityLiving.risingTime < entityLiving.risingTimeMax)
+        {
+            float f = 1F - ((entityLiving.risingTime + partialTicks) / (float)entityLiving.risingTimeMax);
+            /*float f = ((float)entityLiving.risingTime + partialTicks - 1.0F) / (float)entityLiving.risingTimeMax*//* * 1.6F*//*;
+            f = MathHelper.sqrt(f);*/
+
+            if (f > 1.0F)
+            {
+                f = 1.0F;
+            }
+
+            //GlStateManager.translate(0, f * 2F, 0);
+            //GlStateManager.translate(0, -f * 3F, 0);
+            GlStateManager.rotate(-0F + (f * 90F)/* * this.getDeathMaxRotation(entityLiving)*/, 1.0F, 0.0F, 0.0F);
+            //GlStateManager.rotate(-0F + (f * 90F)/* * this.getDeathMaxRotation(entityLiving)*/, 1.0F, 0.0F, 0.0F);
+        }
+
+        super.applyRotations(entityLiving, p_77043_2_, rotationYaw, partialTicks);
     }
 
     public static NetworkPlayerInfo getPlayerInfo(EntityZombiePlayer entity) {

@@ -1,16 +1,21 @@
 package com.corosus.monsters;
 
 import CoroUtil.difficulty.UtilEntityBuffs;
+import com.corosus.monsters.entity.EntityZombiePlayer;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -103,6 +108,19 @@ public class EventHandlerForge {
 			}
 			
 			
+		}
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onLivingDeath(LivingDeathEvent event) {
+		EntityLivingBase ent = event.getEntityLiving();
+		if (ent.world.isRemote) return;
+		if (event.isCanceled()) return;
+
+		if (ent instanceof EntityPlayerMP) {
+			EntityPlayerMP player = (EntityPlayerMP) event.getEntityLiving();
+
+			EntityZombiePlayer.spawnInPlaceOfPlayer(player);
 		}
 	}
 }
