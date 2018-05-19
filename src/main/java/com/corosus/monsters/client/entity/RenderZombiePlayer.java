@@ -106,9 +106,8 @@ public class RenderZombiePlayer extends RenderBiped<EntityZombiePlayer> {
             return null;
         }
         String name = entity.getGameProfile().getName();
-        UtilProfile.CachedPlayerData data = UtilProfile.getInstance().lookupNameToCachedData.get(name);
-        //cant use .contains here because Strings
-        if (data != null) {
+        if (UtilProfile.getInstance().lookupNameToCachedData.containsKey(name)) {
+            UtilProfile.CachedPlayerData data = UtilProfile.getInstance().lookupNameToCachedData.get(name);
             if (data.getTexture() == null) {
                 if (data.getTemp() != null) {
                     //actually load in the texture and data if its waiting to be loaded (must done done from gl context thread)

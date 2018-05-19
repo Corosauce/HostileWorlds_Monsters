@@ -29,7 +29,8 @@ public class UtilProfile implements Runnable {
         return instance;
     }
 
-    public ConcurrentLinkedQueue<GameProfile> listProfileRequests = new ConcurrentLinkedQueue<>();
+    //there were scenarios where GameProfiles .equals comparisons differed with same name, possibly due to some having a UUID in them, using name purely fixes this issue
+    public ConcurrentLinkedQueue<String> listProfileRequests = new ConcurrentLinkedQueue<>();
 
     public ConcurrentHashMap<UUID, CachedPlayerData> lookupUUIDToCachedData = new ConcurrentHashMap<>();
     public ConcurrentHashMap<String, CachedPlayerData> lookupNameToCachedData = new ConcurrentHashMap<>();
@@ -83,40 +84,27 @@ public class UtilProfile implements Runnable {
     public void run() {
 
         while (!listProfileRequests.isEmpty()) {
-            GameProfile profile = listProfileRequests.remove();
-            setupProfileData(profile);
+            //only fetch, do no remove from list yet
+            String profile = listProfileRequests.peek();
+            setupProfileData(new GameProfile(null, profile));
+            //finally remove from list now that the lookup has the data the main thread will try to lookup first, to help concurrency consistency
+            listProfileRequests.poll();
 
-            //prevent network request throttling trigger
-            //triggered if this isnt used and you spawn 30 zombies with random names
-
-            try {
-                Thread.sleep(300);
+            //before code was improved to remove redundant lookups, api use throttling occurred, if issue, make use of this code again
+            /*try {
+                Thread.sleep(100);
             } catch (Exception ex) {
                 ex.printStackTrace();
             } finally {
 
-            }
+            }*/
         }
-
-        /*Iterator<GameProfile> it = listProfileRequests.iterator();
-        while (it.hasNext()) {
-            GameProfile profile = it.next();
-            setupProfileData(profile);
-            it.remove();
-        }
-        try {
-            Thread.sleep(200);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-
-        }*/
     }
 
     public void tryToAddProfileToLookupQueue(GameProfile profile) {
-        if (!listProfileRequests.contains(profile)) {
+        if (!listProfileRequests.contains(profile.getName())) {
             RenderZombiePlayer.dbg("requesting data for: " + profile.getName());
-            listProfileRequests.add(profile);
+            listProfileRequests.add(profile.getName());
 
             if (thread == null || thread.getState() == Thread.State.TERMINATED) {
                 thread = new Thread(instance, "Player Profile Data Request Thread");
