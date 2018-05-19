@@ -83,7 +83,6 @@ public class RenderZombiePlayer extends RenderBiped<EntityZombiePlayer> {
             {
                 return;
             }*/
-
             if (cache != null) {
                 this.bindTexture(cache.getTexture());
             } else {
@@ -95,11 +94,15 @@ public class RenderZombiePlayer extends RenderBiped<EntityZombiePlayer> {
                 GlStateManager.enableBlendProfile(GlStateManager.Profile.TRANSPARENT_MODEL);
             }
 
+
+            float tintAdj = 0.6F;
+            GlStateManager.color(tintAdj, 0.8F, tintAdj - 0.15F, 1.0F);
             if (cache != null && cache.isSlim()) {
                 modelPlayerThin.render(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor);
             } else {
                 this.mainModel.render(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor);
             }
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
             if (flag1)
             {

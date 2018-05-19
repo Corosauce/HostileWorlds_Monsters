@@ -32,7 +32,7 @@ public class CommonProxy implements IGuiHandler
 
     public void init(Monsters pMod)
     {
-        addMapping(EntityZombiePlayer.class, "zombie_player", 0, 64, 1, true);
+        addMapping(EntityZombiePlayer.class, "zombie_player", 0, 64, 3, true);
     }
 
     @Override

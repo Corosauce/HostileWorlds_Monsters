@@ -23,7 +23,9 @@ public class EntityZombiePlayer extends EntityZombie implements IEntityAdditiona
 
     public static EntityZombiePlayer spawnInPlaceOfPlayer(EntityPlayerMP player) {
         EntityZombiePlayer zombie = spawnInPlaceOfPlayer(player.world, player.posX, player.posY, player.posZ, player.getGameProfile());
-        zombie.setHomePosAndDistance(player.getBedLocation(), 16);
+        if (player.getBedLocation() != null) {
+            zombie.setHomePosAndDistance(player.getBedLocation(), 16);
+        }
         return zombie;
     }
 
@@ -145,6 +147,7 @@ public class EntityZombiePlayer extends EntityZombie implements IEntityAdditiona
             ByteBufUtils.writeUTF8String(buffer, gameProfile.getName());
             ByteBufUtils.writeUTF8String(buffer, gameProfile.getId() != null ? gameProfile.getId().toString() : "");
         }
+        buffer.writeInt(risingTime);
     }
 
     @Override
@@ -156,5 +159,6 @@ public class EntityZombiePlayer extends EntityZombie implements IEntityAdditiona
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        risingTime = additionalData.readInt();
     }
 }

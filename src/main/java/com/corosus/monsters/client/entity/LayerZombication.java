@@ -3,6 +3,7 @@ package com.corosus.monsters.client.entity;
 import com.corosus.monsters.Monsters;
 import com.corosus.monsters.entity.EntityZombiePlayer;
 import com.corosus.monsters.util.UtilProfile;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -37,12 +38,15 @@ public class LayerZombication implements LayerRenderer<EntityZombiePlayer>
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         Minecraft.getMinecraft().entityRenderer.setupFogColor(true);*/
 
+        float tintAdj = 0.6F;
+        GlStateManager.color(tintAdj, 0.8F, tintAdj - 0.15F, 1.0F);
         UtilProfile.CachedPlayerData cache = RenderZombiePlayer.getCachedPlayerData(entitylivingbaseIn);
         if (cache != null && cache.isSlim()) {
             this.renderer.modelPlayerThin.render(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
         } else {
             this.renderer.getMainModel().render(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
         }
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
         /*Minecraft.getMinecraft().entityRenderer.setupFogColor(false);
         this.endermanRenderer.setLightmap(entitylivingbaseIn);
