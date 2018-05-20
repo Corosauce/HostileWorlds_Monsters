@@ -1,21 +1,15 @@
 package com.corosus.monsters.client.entity;
 
+import CoroUtil.util.UtilProfile;
 import com.corosus.monsters.client.model.ModelZombiePlayer;
 import com.corosus.monsters.entity.EntityZombiePlayer;
-import com.corosus.monsters.util.UtilProfile;
-import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelZombie;
-import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderBiped;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
-import net.minecraft.client.resources.SkinManager;
-import net.minecraft.util.ResourceLocation;
-
-import java.util.Map;
 
 public class RenderZombiePlayer extends RenderBiped<EntityZombiePlayer> {
 

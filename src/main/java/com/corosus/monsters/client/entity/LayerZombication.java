@@ -1,8 +1,8 @@
 package com.corosus.monsters.client.entity;
 
+import CoroUtil.util.UtilProfile;
 import com.corosus.monsters.Monsters;
 import com.corosus.monsters.entity.EntityZombiePlayer;
-import com.corosus.monsters.util.UtilProfile;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.util.ResourceLocation;
